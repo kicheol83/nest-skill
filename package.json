@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "start:dev:batch": "nest start nest-batch --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/apps/nest-skill-api/main",
+	 "start:prod": "cross-env NODE_ENV=production node dist/apps/nest-skill-api/main",
     "start:prod:batch": "node dist/apps/nest-batch/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
