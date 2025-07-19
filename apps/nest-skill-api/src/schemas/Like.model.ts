@@ -13,7 +13,7 @@ const LikeSchema = new Schema(
 			type: Schema.Types.ObjectId,
 			required: true,
 		},
-		
+
 		memberId: {
 			type: Schema.Types.ObjectId,
 			required: true,
