@@ -2,6 +2,10 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
 import { Member } from '../../libs/dto/member/member';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
+import { ObjectId } from 'mongoose';
 
 @Resolver()
 export class MemberResolver {
@@ -10,7 +14,7 @@ export class MemberResolver {
 	@Mutation(() => Member)
 	public async signup(@Args('input') input: MemberInput): Promise<Member> {
 		console.log('Mutation: signup');
-		return this.memberService.signup(input);
+		return await this.memberService.signup(input);
 	}
 
 	@Mutation(() => Member)
@@ -19,30 +23,42 @@ export class MemberResolver {
 		return this.memberService.login(input);
 	}
 
+	/** Autentacited */
+	@UseGuards(AuthGuard)
 	@Mutation(() => String)
-	public async updateMember(): Promise<string> {
+	public async updateMember(@AuthMember('_id') memberId: ObjectId): Promise<string> {
 		console.log('Mutation: updateMember');
-		return this.memberService.updateMember();
+		console.log(memberId);
+		return await this.memberService.updateMember();
+	}
+
+	@UseGuards(AuthGuard)
+	@Query(() => String)
+	public async checkAuth(@AuthMember('memberNick') memberNick: string): Promise<string> {
+		console.log('Query: checkAuth');
+		console.log('memberNick =>', memberNick);
+		return `hi ${memberNick}`;
 	}
 
 	@Query(() => String)
 	public async getMember(): Promise<string> {
 		console.log('Mutation: getMember');
-		return this.memberService.getMember();
+		return await this.memberService.getMember();
 	}
 
-	/**ADMIN **/
+	/** ADMIN **/
 
+	// Authorization: ADMIN
 	@Mutation(() => String)
 	public async getAllMembersByAdmin(): Promise<string> {
 		console.log('Mutation: getAllMembersByAdmin');
-		return this.memberService.getAllMembersByAdmin();
+		return await this.memberService.getAllMembersByAdmin();
 	}
 
 	// Authorization: ADMIN
 	@Mutation(() => String)
 	public async updateMemberByAdmin(): Promise<string> {
 		console.log('Mutation: updateMemberByAdmin');
-		return this.memberService.updateMemberByAdmin();
+		return await this.memberService.updateMemberByAdmin();
 	}
 }
