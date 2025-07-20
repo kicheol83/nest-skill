@@ -43,6 +43,7 @@ export enum ProviderStatus {
 	SUSPENDED = 'SUSPENDED',
 	DEACTIVATED = 'DEACTIVATED',
 	BANNED = 'BANNED',
+	DELETE = 'DELETE',
 }
 registerEnumType(ProviderStatus, {
 	name: 'ProviderStatus',

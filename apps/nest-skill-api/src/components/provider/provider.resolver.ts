@@ -10,6 +10,7 @@ import { ProviderPostInput } from '../../libs/dto/provider/provider.input';
 import { ProviderService } from './provider.service';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { ProviderPostUpdate } from '../../libs/dto/provider/provider.update';
 
 @Resolver()
 export class ProviderResolver {
@@ -36,5 +37,17 @@ export class ProviderResolver {
 		console.log('Query: getProvider');
 		const providerId = shapeIntoMongoObjectId(input);
 		return await this.providerService.getProvider(memberId, providerId);
+	}
+
+	@Roles(MemberType.PROVIDER)
+	@UseGuards(RolesGuard)
+	@Mutation((returns) => ProviderPost)
+	public async updateProviderPost(
+		@Args('input') input: ProviderPostUpdate,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPost> {
+		console.log('Mutation: updateProviderPost');
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.providerService.updateProviderPost(memberId, input);
 	}
 }

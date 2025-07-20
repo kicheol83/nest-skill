@@ -48,5 +48,11 @@ export class MemberUpdate {
 	@Field(() => String, { nullable: true })
 	memberDesc?: string;
 
+	bannedAt?: Date;
+
+	suspendedAt?: Date;
+
+	deactivatedAt?: Date;
+
 	deleteAt?: Date;
 }

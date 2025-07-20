@@ -66,8 +66,14 @@ export class Member {
 	@Field(() => Int)
 	memberWarnings: number;
 
-	@Field(() => Int)
-	memberBlocks: number;
+	@Field(() => Date, { nullable: true })
+	bannedAt?: Date;
+
+	@Field(() => Date, { nullable: true })
+	suspendedAt?: Date;
+
+	@Field(() => Date, { nullable: true })
+	deactivatedAt?: Date;
 
 	@Field(() => Date, { nullable: true })
 	deletedAt?: Date;

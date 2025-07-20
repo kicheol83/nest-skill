@@ -118,6 +118,18 @@ const ProviderSchema = new Schema(
 			ref: 'Member',
 		},
 
+		bannedAt: {
+			type: Date,
+		},
+
+		suspendedAt: {
+			type: Date,
+		},
+
+		deactivatedAt: {
+			type: Date,
+		},
+
 		deletedAt: {
 			type: Date,
 		},

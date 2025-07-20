@@ -10,6 +10,8 @@ import { ProviderStatus } from '../../libs/enums/provider.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewService } from '../view/view.service';
 import { ViewGroup } from '../../libs/enums/view.enum';
+import * as moment from 'moment';
+import { ProviderPostUpdate } from '../../libs/dto/provider/provider.update';
 
 @Injectable()
 export class ProviderService {
@@ -66,5 +68,29 @@ export class ProviderService {
 	public async providerStatsEditor(input: StatisticModifier): Promise<ProviderPost> {
 		const { _id, targetKey, modifier } = input;
 		return await this.providerModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
+	}
+
+	public async updateProviderPost(memberId: ObjectId, input: ProviderPostUpdate): Promise<ProviderPost> {
+		let { providerStatus, deletedAt } = input;
+		const search: T = {
+			_id: input._id,
+			providerStatus: ProviderStatus.ACTIVE,
+		};
+
+		if (providerStatus === ProviderStatus.DELETE) deletedAt = moment().toDate();
+
+		const result = await this.providerModel.findOneAndUpdate(search, input, { new: true }).exec();
+
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (deletedAt) {
+			await this.memberService.memberStatisEditor({
+				_id: memberId,
+				targetKey: 'memberJobs',
+				modifier: -1,
+			});
+		}
+		// DATABASADAN OCHIRISH MANTIGINI QILISHIM KERAK
+
+		return result;
 	}
 }
