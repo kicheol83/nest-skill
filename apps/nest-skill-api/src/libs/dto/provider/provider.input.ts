@@ -3,6 +3,7 @@ import {
 	ArrayNotEmpty,
 	IsArray,
 	IsEnum,
+	IsIn,
 	IsInt,
 	IsNotEmpty,
 	IsOptional,
@@ -12,6 +13,7 @@ import {
 	ValidateIf,
 } from 'class-validator';
 import {
+	ProviderLevel,
 	ProviderLocation,
 	ProviderRateType,
 	ProviderType,
@@ -19,6 +21,8 @@ import {
 	ProviderWorkWeekday,
 } from '../../enums/provider.enum';
 import { ObjectId } from 'mongoose';
+import { Direction } from '../../enums/common.enum';
+import { availableDayLimit, availableProviderPostSorts } from '../../config';
 
 @InputType()
 export class ProviderPostInput {
@@ -88,4 +92,132 @@ export class ProviderPostInput {
 	providerDesc?: string;
 
 	memberId?: ObjectId;
+}
+
+/** PROVIDER JOB POST SORTS **/
+@InputType()
+export class WorkTime {
+	@Field(() => Int)
+	start: string;
+
+	@Field(() => Int)
+	end: string;
+}
+
+@InputType()
+export class WorkPrice {
+	@Field(() => Int)
+	start: number;
+
+	@Field(() => Int)
+	end: number;
+}
+
+@InputType()
+class PISearch {
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	memberId?: ObjectId;
+
+	@IsOptional()
+	@Field(() => [ProviderLocation], { nullable: true })
+	locationList?: ProviderLocation[];
+
+	@IsOptional()
+	@Field(() => [ProviderType], { nullable: true })
+	typeList?: ProviderType[];
+
+	@IsOptional()
+	@Field(() => [ProviderLevel], { nullable: true })
+	levelList?: ProviderLevel[];
+
+	@IsOptional()
+	@Field(() => [ProviderWorkWeekday], { nullable: true })
+	workWeekdayList?: ProviderWorkWeekday[];
+
+	@IsOptional()
+	@Field(() => [ProviderWeekday], { nullable: true })
+	weekList?: ProviderWeekday[];
+
+	@IsOptional()
+	@Field(() => [ProviderRateType], { nullable: true })
+	rateRange?: ProviderRateType[];
+
+	@IsOptional()
+	@IsIn(availableDayLimit, { each: true })
+	@Field(() => [String], { nullable: true })
+	options?: string[];
+
+	@IsOptional()
+	@Field(() => WorkTime, { nullable: true })
+	workRange?: WorkTime;
+
+	@IsOptional()
+	@Field(() => WorkPrice, { nullable: true })
+	workPrice?: WorkPrice;
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	text?: string;
+}
+
+@InputType()
+export class PropertiesInquiry {
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
+
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
+
+	@IsOptional()
+	@IsIn(availableProviderPostSorts)
+	@Field(() => String, { nullable: true })
+	sort?: string;
+
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	direction?: Direction;
+
+	@IsNotEmpty()
+	@Field(() => PISearch)
+	search: PISearch;
+}
+
+/***********************************/
+/** PROVIDER POST **/
+@InputType()
+class APISearch {
+	@IsOptional()
+	@Field(() => ProviderType, { nullable: true })
+	providerType?: ProviderType;
+}
+
+@InputType()
+export class AgentPropertiesInquiry {
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
+
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
+
+	@IsOptional()
+	@IsIn(availableProviderPostSorts)
+	@Field(() => String, { nullable: true })
+	sort?: string;
+
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	direction?: Direction;
+
+	@IsNotEmpty()
+	@Field(() => APISearch)
+	search: APISearch;
 }

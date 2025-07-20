@@ -2,8 +2,19 @@ import { ObjectId } from 'bson';
 export const AUTH_TIMER = 30;
 export const CREATE_JOB_LIMIT = 3;
 
-export const availableProvidersSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
+export const availableProvidersUserSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
 export const availableMembersSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
+
+export const availableDayLimit = [1, 2, 3, 4, 5, 6, 7];
+export const availableProviderPostSorts = [
+	'createdAt',
+	'updatedAt',
+	'providerLikes',
+	'providerViews',
+	'providerRank',
+	'providerWorkPrice',
+	'providerLevel',
+];
 
 /** IMAGE CONFIGURATION **/
 import { v4 as uuidv4 } from 'uuid';
