@@ -1,22 +1,23 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum ProviderType {
-	PET_CARE = 'Pet Care',
-	HOME_CLEANING = 'Home Cleaning',
-	PLUMBING = 'Plumbing',
-	ELECTRICIAN = 'Electrician',
-	BABYSITTING = 'Babysitting',
-	ELDERLY_CARE = 'Elderly Care',
-	TUTORING = 'Tutoring',
-	CAR_REPAIR = 'Car Repair',
-	BEAUTY_SALON = 'Beauty & Salon',
-	PERSONAL_TRAINING = 'Personal Training',
-	GARDENING = 'Gardening & Landscaping',
-	MOVING_DELIVERY = 'Moving & Delivery',
-	APPLIANCE_REPAIR = 'Home Appliance Repair',
-	IT_SUPPORT = 'IT Support',
-	PHOTOGRAPHY = 'Photography & Videography',
+	PLUMBING = 'PLUMBING',
+	CLEANING = 'CLEANING',
+	BABYSITTING = 'BABYSITTING',
+	TUTORING = 'TUTORING',
+	GARDENING = 'GARDENING',
+	ELECTRICIAN = 'ELECTRICIAN',
+	PHOTOGRAPHY = 'PHOTOGRAPHY',
+	COOKING = 'COOKING',
+	DRIVING = 'DRIVING',
+	PAINTING = 'PAINTING',
+	CARPENTRY = 'CARPENTRY',
+	WRITING = 'WRITING',
+	TRANSLATING = 'TRANSLATING',
+	DELIVERING = 'DELIVERING',
+	TRAINING = 'TRAINING',
 }
+
 registerEnumType(ProviderType, {
 	name: 'ProviderType',
 });

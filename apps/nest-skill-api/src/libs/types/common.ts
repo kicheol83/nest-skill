@@ -1,3 +1,5 @@
+import { ObjectId } from "mongoose";
+
 export interface T {
 	[key: string]: any;
 }
@@ -20,4 +22,10 @@ export enum Message {
 	NOT_ALLOWED_REQUEST = 'Not Allowed Request!',
 	PROVIDE_ALLOWED_FORMAT = 'Please provide jpg, jpeg or png images!',
 	SELF_SUBSCRIPTION_DENIED = 'Self subscription is denied!',
+}
+
+export interface StatisticModifier {
+	_id: ObjectId;
+	targetKey: string;
+	modifier: number;
 }

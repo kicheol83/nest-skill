@@ -1,5 +1,6 @@
 import { ObjectId } from 'bson';
 export const AUTH_TIMER = 30;
+export const CREATE_JOB_LIMIT = 3;
 
 export const availableProvidersSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
 export const availableMembersSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
