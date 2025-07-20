@@ -11,7 +11,7 @@ registerEnumType(CommentStatus, {
 export enum CommentGroup {
 	MEMBER = 'MEMBER',
 	ARTICLE = 'ARTICLE',
-	PROPERTY = 'PROPERTY',
+	PROVIDER = 'PROVIDER',
 }
 registerEnumType(CommentGroup, {
 	name: 'CommentGroup',

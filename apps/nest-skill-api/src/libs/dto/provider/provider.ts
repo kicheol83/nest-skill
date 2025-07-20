@@ -9,6 +9,7 @@ import {
 	ProviderWorkWeekday,
 } from '../../enums/provider.enum';
 import { ObjectId } from 'mongoose';
+import { Member } from '../member/member';
 
 @ObjectType()
 export class ProviderPost {
@@ -83,4 +84,8 @@ export class ProviderPost {
 
 	@Field(() => Date)
 	updatedAt: Date;
+
+	/** from aggregation **/
+	@Field(() => Member, { nullable: true })
+	memberData?: Member;
 }

@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UseGuards } from '@nestjs/common';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
@@ -8,10 +8,12 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { ProviderPost } from '../../libs/dto/provider/provider';
 import { ProviderPostInput } from '../../libs/dto/provider/provider.input';
 import { ProviderService } from './provider.service';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { shapeIntoMongoObjectId } from '../../libs/config';
 
 @Resolver()
 export class ProviderResolver {
-	constructor(private readonly propertyService: ProviderService) {}
+	constructor(private readonly providerService: ProviderService) {}
 
 	@Roles(MemberType.PROVIDER)
 	@UseGuards(RolesGuard)
@@ -22,6 +24,17 @@ export class ProviderResolver {
 	): Promise<ProviderPost> {
 		console.log('Mutation: createProvider');
 		input.memberId = memberId;
-		return await this.propertyService.createProvider(input);
+		return await this.providerService.createProvider(input);
+	}
+
+	@UseGuards(WithoutGuard)
+	@Query((returns) => ProviderPost)
+	public async getProvider(
+		@Args('providerId') input: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPost> {
+		console.log('Query: getProvider');
+		const providerId = shapeIntoMongoObjectId(input);
+		return await this.providerService.getProvider(memberId, providerId);
 	}
 }
