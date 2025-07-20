@@ -5,8 +5,8 @@ import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { ObjectId } from 'mongoose';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { ProviderPost } from '../../libs/dto/provider/provider';
-import { ProviderPostInput } from '../../libs/dto/provider/provider.input';
+import { ProviderPost, ProviderPosts } from '../../libs/dto/provider/provider';
+import { ProviderJobsInquiry, ProviderMemberInquiry, ProviderPostInput } from '../../libs/dto/provider/provider.input';
 import { ProviderService } from './provider.service';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -49,5 +49,26 @@ export class ProviderResolver {
 		console.log('Mutation: updateProviderPost');
 		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.providerService.updateProviderPost(memberId, input);
+	}
+
+	@UseGuards(WithoutGuard)
+	@Query((returns) => ProviderPosts)
+	public async getProviderJobs(
+		@Args('input') input: ProviderJobsInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPosts> {
+		console.log('Query: getProviderJobs');
+		return await this.providerService.getProviderJobs(memberId, input);
+	}
+
+	@Roles(MemberType.PROVIDER)
+	@UseGuards(RolesGuard)
+	@Query((returns) => ProviderPosts)
+	public async getProviderMemberJobs(
+		@Args('input') input: ProviderMemberInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPosts> {
+		console.log('Query: getProviderMemberJobs');
+		return await this.providerService.getProviderMemberJobs(memberId, input);
 	}
 }

@@ -16,6 +16,7 @@ import {
 	ProviderLevel,
 	ProviderLocation,
 	ProviderRateType,
+	ProviderStatus,
 	ProviderType,
 	ProviderWeekday,
 	ProviderWorkWeekday,
@@ -141,7 +142,7 @@ class PISearch {
 
 	@IsOptional()
 	@Field(() => [ProviderRateType], { nullable: true })
-	rateRange?: ProviderRateType[];
+	rateRangeList?: ProviderRateType[];
 
 	@IsOptional()
 	@IsIn(availableDayLimit, { each: true })
@@ -150,7 +151,7 @@ class PISearch {
 
 	@IsOptional()
 	@Field(() => WorkTime, { nullable: true })
-	workRange?: WorkTime;
+	workTimeRange?: WorkTime;
 
 	@IsOptional()
 	@Field(() => WorkPrice, { nullable: true })
@@ -162,7 +163,7 @@ class PISearch {
 }
 
 @InputType()
-export class PropertiesInquiry {
+export class ProviderJobsInquiry {
 	@IsNotEmpty()
 	@Min(1)
 	@Field(() => Int)
@@ -180,7 +181,7 @@ export class PropertiesInquiry {
 
 	@IsOptional()
 	@Field(() => Direction, { nullable: true })
-	direction?: Direction;
+	directions?: Direction;
 
 	@IsNotEmpty()
 	@Field(() => PISearch)
@@ -192,12 +193,12 @@ export class PropertiesInquiry {
 @InputType()
 class APISearch {
 	@IsOptional()
-	@Field(() => ProviderType, { nullable: true })
-	providerType?: ProviderType;
+	@Field(() => ProviderStatus, { nullable: true })
+	providerStatus?: ProviderStatus;
 }
 
 @InputType()
-export class AgentPropertiesInquiry {
+export class ProviderMemberInquiry {
 	@IsNotEmpty()
 	@Min(1)
 	@Field(() => Int)
@@ -215,7 +216,7 @@ export class AgentPropertiesInquiry {
 
 	@IsOptional()
 	@Field(() => Direction, { nullable: true })
-	direction?: Direction;
+	directions?: Direction;
 
 	@IsNotEmpty()
 	@Field(() => APISearch)

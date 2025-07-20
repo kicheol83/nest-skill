@@ -9,7 +9,7 @@ import {
 	ProviderWorkWeekday,
 } from '../../enums/provider.enum';
 import { ObjectId } from 'mongoose';
-import { Member } from '../member/member';
+import { Member, TotalCounter } from '../member/member';
 
 @ObjectType()
 export class ProviderPost {
@@ -88,4 +88,13 @@ export class ProviderPost {
 	/** from aggregation **/
 	@Field(() => Member, { nullable: true })
 	memberData?: Member;
+}
+
+@ObjectType()
+export class ProviderPosts {
+	@Field(() => [ProviderPost])
+	list: ProviderPost[];
+
+	@Field(() => [TotalCounter], { nullable: true })
+	metaCounter: TotalCounter[];
 }

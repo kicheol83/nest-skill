@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ProviderPost } from '../../libs/dto/provider/provider';
+import { ProviderPost, ProviderPosts } from '../../libs/dto/provider/provider';
 import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { MemberService } from '../member/member.service';
-import { Message } from '../../libs/enums/common.enum';
-import { ProviderPostInput } from '../../libs/dto/provider/provider.input';
-import { CREATE_JOB_LIMIT } from '../../libs/config';
+import { Direction, Message } from '../../libs/enums/common.enum';
+import { ProviderJobsInquiry, ProviderMemberInquiry, ProviderPostInput } from '../../libs/dto/provider/provider.input';
+import { CREATE_JOB_LIMIT, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { ProviderStatus } from '../../libs/enums/provider.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewService } from '../view/view.service';
@@ -92,5 +92,118 @@ export class ProviderService {
 		// DATABASADAN OCHIRISH MANTIGINI QILISHIM KERAK
 
 		return result;
+	}
+
+	public async getProviderJobs(memberId: ObjectId, input: ProviderJobsInquiry): Promise<ProviderPosts> {
+		const match: T = { providerStatus: ProviderStatus.ACTIVE };
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
+
+		this.shapeMatchQuery(match, input);
+		console.log('matchQuery:', match);
+
+		const result = await this.providerModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							// meLiked
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
+	}
+
+	private shapeMatchQuery(match: T, input: ProviderJobsInquiry): void {
+		const {
+			memberId,
+			locationList,
+			typeList,
+			levelList,
+			workWeekdayList,
+			weekList,
+			rateRangeList,
+			options,
+			workTimeRange,
+			workPrice,
+			text,
+		} = input.search;
+
+		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
+		if (locationList && locationList.length) match.providerLocation = { $in: locationList };
+		if (typeList && typeList.length) match.providerType = { $in: typeList };
+		if (levelList && levelList.length) match.providerLevel = { $in: levelList };
+		if (workWeekdayList && workWeekdayList.length) match.providerWorkWeekday = { $in: workWeekdayList };
+		if (weekList && weekList.length) match.providerWeekday = { $in: weekList };
+		if (rateRangeList && rateRangeList.length) match.providerRateType = { $in: rateRangeList };
+
+		if (workTimeRange) {
+			match.providerStartTime = { $gte: workTimeRange.start };
+			match.providerEndTime = { $lte: workTimeRange.end };
+		}
+
+		if (workPrice) match.providerWorkPrice = { $gte: workPrice.start, $lte: workPrice.end };
+
+		if (text) match.providerTitle = { $regex: new RegExp(text, 'i') };
+		if (options) {
+			match['$or'] = options.map((ele) => {
+				return { [ele]: true };
+			});
+		}
+	}
+
+	public async getProviderMemberJobs(memberId: ObjectId, input: ProviderMemberInquiry): Promise<ProviderPosts> {
+		const { providerStatus } = input.search;
+		if (providerStatus === ProviderStatus.DELETE) {
+			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		}
+
+		const match: T = {
+			memberId: memberId,
+			providerStatus: providerStatus ?? { $ne: ProviderStatus.DELETE },
+		};
+
+		const sort: T = {
+			[input?.sort ?? 'createdAt']: input?.directions ?? Direction.DESC,
+		};
+
+		const result = await this.providerModel
+			.aggregate([
+				{
+					$match: match,
+				},
+				{
+					$sort: sort,
+				},
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) {
+			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		}
+
+		return result[0];
 	}
 }
