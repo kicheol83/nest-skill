@@ -1,8 +1,8 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { MemberAuthType, MemberType } from '../../enums/member.enum';
+import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
 import { Direction } from '../../enums/common.enum';
-import { availableProvidersSorts } from '../../config';
+import { availableMembersSorts, availableProvidersSorts } from '../../config';
 
 @InputType()
 export class MemberInput {
@@ -73,4 +73,46 @@ export class ProviderInquiry {
 	@IsNotEmpty()
 	@Field(() => AIsearch)
 	search: AIsearch;
+}
+
+/** ADMIN MEMBERS **/
+@InputType()
+class MIsearch {
+	@IsOptional()
+	@Field(() => MemberStatus, { nullable: true })
+	memberStatus?: MemberStatus;
+
+	@IsOptional()
+	@Field(() => MemberType, { nullable: true })
+	memberType?: MemberType;
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	text?: string;
+}
+
+@InputType()
+export class MembersInquiry {
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
+
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
+
+	@IsOptional()
+	@IsIn([availableMembersSorts])
+	@Field(() => String, { nullable: true })
+	sort?: string;
+
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	directions?: Direction;
+
+	@IsNotEmpty()
+	@Field(() => MIsearch)
+	search: MIsearch;
 }
