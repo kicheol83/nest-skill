@@ -188,8 +188,6 @@ export class ProviderJobsInquiry {
 	search: PISearch;
 }
 
-/***********************************/
-/** PROVIDER POST **/
 @InputType()
 class APISearch {
 	@IsOptional()
@@ -221,4 +219,42 @@ export class ProviderMemberInquiry {
 	@IsNotEmpty()
 	@Field(() => APISearch)
 	search: APISearch;
+}
+
+/** ADMIN **/
+@InputType()
+class ALPISearch {
+	@IsOptional()
+	@Field(() => ProviderStatus, { nullable: true })
+	providerStatus?: ProviderStatus;
+
+	@IsOptional()
+	@Field(() => [ProviderLocation], { nullable: true })
+	providerLocationList?: ProviderLocation[];
+}
+
+@InputType()
+export class AllProviderJobsInquiry {
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
+
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
+
+	@IsOptional()
+	@IsIn(availableProviderPostSorts)
+	@Field(() => String, { nullable: true })
+	sort?: string;
+
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	directions?: Direction;
+
+	@IsNotEmpty()
+	@Field(() => ALPISearch)
+	search: ALPISearch;
 }

@@ -6,7 +6,12 @@ import { ObjectId } from 'mongoose';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ProviderPost, ProviderPosts } from '../../libs/dto/provider/provider';
-import { ProviderJobsInquiry, ProviderMemberInquiry, ProviderPostInput } from '../../libs/dto/provider/provider.input';
+import {
+	AllProviderJobsInquiry,
+	ProviderJobsInquiry,
+	ProviderMemberInquiry,
+	ProviderPostInput,
+} from '../../libs/dto/provider/provider.input';
 import { ProviderService } from './provider.service';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -70,5 +75,35 @@ export class ProviderResolver {
 	): Promise<ProviderPosts> {
 		console.log('Query: getProviderMemberJobs');
 		return await this.providerService.getProviderMemberJobs(memberId, input);
+	}
+
+	/** ADMIN **/
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Query((retruns) => ProviderPosts)
+	public async getAllProviderJobsByAdmin(
+		@Args('input') input: AllProviderJobsInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPosts> {
+		console.log('Query: getAllProviderJobsByAdmin');
+		return await this.providerService.getAllProviderJobsByAdmin(input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation((retruns) => ProviderPost)
+	public async updateProviderPostyByAdmin(@Args('input') input: ProviderPostUpdate): Promise<ProviderPost> {
+		console.log('Mutation: updateProviderPostyByAdmin');
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.providerService.updateProviderPostyByAdmin(input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation((returns) => ProviderPost)
+	public async removeProviderPostyByAdmin(@Args('providerId') input: string): Promise<ProviderPost> {
+		console.log('Mutation: removeProviderPostyByAdmin');
+		const providerId = shapeIntoMongoObjectId(input);
+		return await this.providerService.removeProviderPostyByAdmin(providerId);
 	}
 }

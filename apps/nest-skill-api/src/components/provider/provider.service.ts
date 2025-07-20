@@ -4,7 +4,12 @@ import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { MemberService } from '../member/member.service';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { ProviderJobsInquiry, ProviderMemberInquiry, ProviderPostInput } from '../../libs/dto/provider/provider.input';
+import {
+	AllProviderJobsInquiry,
+	ProviderJobsInquiry,
+	ProviderMemberInquiry,
+	ProviderPostInput,
+} from '../../libs/dto/provider/provider.input';
 import { CREATE_JOB_LIMIT, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { ProviderStatus } from '../../libs/enums/provider.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
@@ -205,5 +210,77 @@ export class ProviderService {
 		}
 
 		return result[0];
+	}
+
+	public async getAllProviderJobsByAdmin(input: AllProviderJobsInquiry): Promise<ProviderPosts> {
+		const { providerStatus, providerLocationList } = input.search;
+		const match: T = {};
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
+
+		if (providerStatus) match.providerStatus = providerStatus;
+		if (providerLocationList) match.providerLocation = { $in: providerLocationList };
+
+		const result = await this.providerModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) {
+			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		}
+
+		return result[0];
+	}
+
+	public async updateProviderPostyByAdmin(input: ProviderPostUpdate): Promise<ProviderPost> {
+		let { providerStatus, deletedAt } = input;
+
+		const search = {
+			_id: input._id,
+			providerStatus: ProviderStatus.ACTIVE,
+		};
+
+		if (providerStatus === ProviderStatus.DELETE) deletedAt = moment().toDate();
+
+		const result = await this.providerModel
+			.findOneAndUpdate(search, input, {
+				new: true,
+			})
+			.exec();
+
+		if (!result) {
+			throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		}
+
+		if (deletedAt) {
+			await this.memberService.memberStatisEditor({
+				_id: result.memberId,
+				targetKey: 'memberJobs',
+				modifier: -1,
+			});
+		}
+
+		return result;
+	}
+
+	public async removeProviderPostyByAdmin(providerId: ObjectId): Promise<ProviderPost> {
+		const search: T = { _id: providerId, providerStatus: ProviderStatus.DELETE };
+		const result = await this.providerModel.findOneAndDelete(search).exec();
+		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
+		return result;
 	}
 }

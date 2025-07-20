@@ -91,7 +91,7 @@ export class MemberService {
 	public async getProvider(memberId: ObjectId, input: ProviderInquiry): Promise<Members> {
 		const { text } = input.search;
 		const match: T = { memberType: MemberType.PROVIDER, memberStatus: MemberStatus.ACTIVE };
-		const sort: T = { [input?.sort ?? 'cretedAt']: input?.directions ?? Direction.DESC };
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
 
 		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
 		console.log('match:', match);

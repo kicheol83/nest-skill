@@ -29,7 +29,7 @@ export class MemberResolver {
 	@Mutation(() => Member)
 	public async login(@Args('input') input: LoginInput): Promise<Member> {
 		console.log('Mutation: login');
-		return this.memberService.login(input);
+		return await this.memberService.login(input);
 	}
 
 	/** Autentacited */
@@ -41,7 +41,7 @@ export class MemberResolver {
 	): Promise<Member> {
 		console.log('Mutation: updateMember');
 		delete input._id;
-		return this.memberService.updateMember(memberId, input);
+		return await this.memberService.updateMember(memberId, input);
 	}
 
 	@UseGuards(AuthGuard)
@@ -65,7 +65,7 @@ export class MemberResolver {
 	public async getMember(@Args('memberId') input: string, @AuthMember('_id') memberId: ObjectId): Promise<Member> {
 		console.log('Mutation: getMember');
 		const targetId = shapeIntoMongoObjectId(input);
-		return this.memberService.getMember(memberId, targetId);
+		return await this.memberService.getMember(memberId, targetId);
 	}
 
 	@UseGuards(WithoutGuard)
@@ -75,7 +75,7 @@ export class MemberResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Members> {
 		console.log('Query: getProvider');
-		return this.memberService.getProvider(memberId, input);
+		return await this.memberService.getProvider(memberId, input);
 	}
 
 	/** ADMIN **/
