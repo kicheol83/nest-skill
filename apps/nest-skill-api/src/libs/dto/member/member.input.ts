@@ -1,6 +1,8 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { Field, InputType, Int } from '@nestjs/graphql';
+import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import { MemberAuthType, MemberType } from '../../enums/member.enum';
+import { Direction } from '../../enums/common.enum';
+import { availableProvidersSorts } from '../../config';
 
 @InputType()
 export class MemberInput {
@@ -38,4 +40,37 @@ export class LoginInput {
 	@Length(5, 12)
 	@Field(() => String)
 	memberPassword: string;
+}
+
+@InputType()
+class AIsearch {
+	@IsNotEmpty()
+	@Field(() => String, { nullable: true })
+	text?: string;
+}
+
+@InputType()
+export class ProviderInquiry {
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
+
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
+
+	@IsOptional()
+	@IsIn([availableProvidersSorts])
+	@Field(() => String, { nullable: true })
+	sort?: string;
+
+	@IsOptional()
+	@Field(() => Direction, { nullable: true })
+	directions?: Direction;
+
+	@IsNotEmpty()
+	@Field(() => AIsearch)
+	search: AIsearch;
 }

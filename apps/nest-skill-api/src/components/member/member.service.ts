@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Member } from '../../libs/dto/member/member';
-import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
-import { Message } from '../../libs/enums/common.enum';
-import { MemberStatus } from '../../libs/enums/member.enum';
+import { Member, Members } from '../../libs/dto/member/member';
+import { LoginInput, MemberInput, ProviderInquiry } from '../../libs/dto/member/member.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
+import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { ObjectId } from 'mongoose';
@@ -86,6 +86,32 @@ export class MemberService {
 		}
 
 		return targetMember;
+	}
+
+	public async getProvider(memberId: ObjectId, input: ProviderInquiry): Promise<Members> {
+		const { text } = input.search;
+		const match: T = { memberType: MemberType.PROVIDER, memberStatus: MemberStatus.ACTIVE };
+		const sort: T = { [input?.sort ?? 'cretedAt']: input?.directions ?? Direction.DESC };
+
+		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
+		console.log('match:', match);
+
+		const result = await this.memberModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+		console.log('result:', result);
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
 	}
 
 	public async getAllMembersByAdmin(): Promise<string> {
