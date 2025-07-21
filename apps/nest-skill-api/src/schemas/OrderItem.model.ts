@@ -2,11 +2,6 @@ import { Schema } from 'mongoose';
 
 const OrderItemSchema = new Schema(
 	{
-		itemQuantity: {
-			type: Number,
-			required: true,
-		},
-
 		itemPrice: {
 			type: Number,
 			required: true,

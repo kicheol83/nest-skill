@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
 import OrderSchema from '../../schemas/Order.model ';
+import OrderItemSchema from '../../schemas/OrderItem.model';
 
 @Module({
 	imports: [
@@ -12,6 +13,12 @@ import OrderSchema from '../../schemas/Order.model ';
 			{
 				name: 'Order',
 				schema: OrderSchema,
+			},
+		]),
+		MongooseModule.forFeature([
+			{
+				name: 'OrderItems',
+				schema: OrderItemSchema,
 			},
 		]),
 		AuthModule,

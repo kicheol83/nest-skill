@@ -1,29 +1,22 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { IsIn, IsInt, IsMongoId, IsNotEmpty, IsOptional, Min } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { Direction } from '../../enums/common.enum';
 import { availableOrdersSorts } from '../../config';
 import { OrderStatus } from '../../enums/order.enum';
-
 @InputType()
 export class CreateOrderInput {
 	@IsInt()
 	@Min(0)
 	@Field(() => Int)
-	orderPrice: number;
+	itemPrice: number;
 
-	@IsInt()
-	@Min(0)
-	@Field(() => Int)
-	webTax: number;
-
-	@IsInt()
-	@Min(0)
-	@Field(() => Int)
-	totalPrice: number;
-
+	@IsNotEmpty()
 	@Field(() => String)
-	@IsMongoId()
-	memberId: string;
+	providerId: string;
+
+	orderId?: string;
+
+	memberId?: string;
 }
 
 @InputType()

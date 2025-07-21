@@ -12,10 +12,10 @@ export class Order {
 	orderPrice: number;
 
 	@Field(() => Int)
-	orderDelivery: number;
+	webTax: number;
 
 	@Field(() => OrderStatus)
-	orderStatus: OrderStatus;
+	orderStatus: OrderStatus.PENDING;
 
 	@Field(() => Int)
 	totalPrice: number;
@@ -40,4 +40,22 @@ export class Orders {
 
 	@Field(() => [TotalCounter], { nullable: true })
 	metaCounter: TotalCounter[];
+}
+
+@ObjectType()
+export class OrderItem {
+	@Field(() => Int)
+	itemPrice: number;
+
+	@Field(() => String)
+	orderId: ObjectId;
+
+	@Field(() => String)
+	providerId: ObjectId;
+
+	@Field(() => Date)
+	createdAt: Date;
+
+	@Field(() => Date)
+	updatedAt: Date;
 }
