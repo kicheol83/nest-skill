@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 
 const OrderItemSchema = new Schema(
 	{
@@ -25,4 +25,4 @@ const OrderItemSchema = new Schema(
 	{ timestamps: true, collection: 'orderItems' },
 );
 
-export default mongoose.model('OrderItem', OrderItemSchema);
+export default OrderItemSchema;

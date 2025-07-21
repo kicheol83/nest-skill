@@ -17,6 +17,8 @@ export const availableProviderPostSorts = [
 ];
 export const availableBoardArticleSorts = ['createdAt', 'updatedAt', 'articleLikes', 'articleViews'];
 
+export const availableOrdersSorts = ['createdAt', 'updatedAt', 'orderPrice', 'orderDelivery', 'orderStatus'];
+
 /** IMAGE CONFIGURATION **/
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';

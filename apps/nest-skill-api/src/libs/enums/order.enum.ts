@@ -1,3 +1,5 @@
+import { registerEnumType } from '@nestjs/graphql';
+
 export enum OrderStatus {
 	PENDING = 'PENDING',
 	CONFIRMED = 'CONFIRMED',
@@ -9,3 +11,6 @@ export enum OrderStatus {
 	PAID = 'PAID',
 	REFUNDED = 'REFUNDED',
 }
+registerEnumType(OrderStatus, {
+	name: 'OrderStatus',
+});

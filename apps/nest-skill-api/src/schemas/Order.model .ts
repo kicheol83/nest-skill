@@ -1,14 +1,19 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 import { OrderStatus } from '../libs/enums/order.enum';
 
 const OrderSchema = new Schema(
 	{
-		orderTotal: {
+		orderPrice: {
 			type: Number,
 			required: true,
 		},
 
-		orderDelivery: {
+		webTax: {
+			type: Number,
+			required: true,
+		},
+
+		totalPrice: {
 			type: Number,
 			required: true,
 		},
@@ -28,4 +33,4 @@ const OrderSchema = new Schema(
 	{ timestamps: true },
 );
 
-export default mongoose.model('order', OrderSchema);
+export default OrderSchema;
