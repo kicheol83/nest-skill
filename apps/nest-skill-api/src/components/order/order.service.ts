@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateOrderInput } from '../../libs/dto/order/order.input';
-import { Order, OrderItem } from '../../libs/dto/order/order';
-import { shapeIntoMongoObjectId } from '../../libs/config';
+import { CreateOrderInput, OrderInquiry } from '../../libs/dto/order/order.input';
+import { Order, OrderItem, Orders } from '../../libs/dto/order/order';
+import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { OrderStatus } from '../../libs/enums/order.enum';
-import { Message } from '../../libs/enums/common.enum';
+import { Direction, Message } from '../../libs/enums/common.enum';
+import { T } from '../../libs/types/common';
 
 @Injectable()
 export class OrderService {
@@ -60,5 +61,74 @@ export class OrderService {
 
 		const orderItemState = await Promise.all(promisedList);
 		console.log('orderItemState', orderItemState);
+	}
+
+	public async getMyOrder(memberId: ObjectId, orderId: ObjectId): Promise<Order> {
+		const search: T = {
+			_id: orderId,
+			memberId: memberId,
+			orderStatus: {
+				$in: [
+					OrderStatus.PENDING,
+					OrderStatus.CONFIRMED,
+					OrderStatus.IN_PROGRESS,
+					OrderStatus.COMPLETED,
+					OrderStatus.PAID,
+					OrderStatus.CANCELED,
+					OrderStatus.REJECTED,
+					OrderStatus.EXPIRED,
+					OrderStatus.REFUNDED,
+				],
+			},
+		};
+
+		const targetOrder: Order = await this.orderModel.findOne(search).lean().exec();
+		if (!targetOrder) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		targetOrder.memberData = await this.memberService.getMember(null, targetOrder.memberId);
+		return targetOrder;
+	}
+
+	public async getMyOrders(memberId: ObjectId, input: OrderInquiry): Promise<Orders> {
+		const match: T = {
+			memberId: memberId,
+			orderStatus: {
+				$in: [
+					OrderStatus.PENDING,
+					OrderStatus.CONFIRMED,
+					OrderStatus.IN_PROGRESS,
+					OrderStatus.COMPLETED,
+					OrderStatus.PAID,
+					OrderStatus.CANCELED,
+					OrderStatus.REJECTED,
+					OrderStatus.EXPIRED,
+					OrderStatus.REFUNDED,
+				],
+			},
+		};
+		const sort: T = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
+
+		console.log('match:', match);
+
+		const result = await this.orderModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
 	}
 }

@@ -15,7 +15,7 @@ export class Order {
 	webTax: number;
 
 	@Field(() => OrderStatus)
-	orderStatus: OrderStatus.PENDING;
+	orderStatus: OrderStatus;
 
 	@Field(() => Int)
 	totalPrice: number;

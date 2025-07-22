@@ -3,6 +3,7 @@ import { IsIn, IsInt, IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { Direction } from '../../enums/common.enum';
 import { availableOrdersSorts } from '../../config';
 import { OrderStatus } from '../../enums/order.enum';
+import { ObjectId } from 'mongoose';
 @InputType()
 export class CreateOrderInput {
 	@IsInt()
@@ -14,19 +15,19 @@ export class CreateOrderInput {
 	@Field(() => String)
 	providerId: string;
 
-	orderId?: string;
+	orderId?: ObjectId;
 
-	memberId?: string;
+	memberId?: ObjectId;
 }
 
 @InputType()
 class ORsearch {
-	@IsNotEmpty()
+	@IsOptional()
 	@Field(() => String, { nullable: true })
 	text?: string;
 
-	@IsNotEmpty()
-	@Field(() => String, { nullable: true })
+	@IsOptional()
+	@Field(() => OrderStatus, { nullable: true })
 	orderStatus?: OrderStatus;
 }
 
@@ -43,7 +44,7 @@ export class OrderInquiry {
 	limit: number;
 
 	@IsOptional()
-	@IsIn([availableOrdersSorts])
+	@IsIn(availableOrdersSorts)
 	@Field(() => String, { nullable: true })
 	sort?: string;
 
@@ -51,9 +52,9 @@ export class OrderInquiry {
 	@Field(() => Direction, { nullable: true })
 	directions?: Direction;
 
-	@IsNotEmpty()
-	@Field(() => ORsearch)
-	search: ORsearch;
+	@IsOptional()
+	@Field(() => ORsearch, { nullable: true })
+	search?: ORsearch;
 }
 
 /** ADMIN  **/
@@ -70,7 +71,7 @@ class ORSsearch {
 
 	@IsNotEmpty()
 	@Field(() => String, { nullable: true })
-	memberId?: string;
+	memberId?: ObjectId;
 }
 
 @InputType()
