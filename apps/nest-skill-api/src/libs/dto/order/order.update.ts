@@ -6,7 +6,7 @@ import { OrderStatus } from '../../enums/order.enum';
 export class UpdateOrderInput {
 	@IsOptional()
 	@Field(() => String)
-	id: string;
+	_id: string;
 
 	@IsOptional()
 	@Min(0)
@@ -26,4 +26,8 @@ export class UpdateOrderInput {
 	@IsOptional()
 	@Field(() => OrderStatus, { nullable: true })
 	orderStatus?: OrderStatus;
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	providerId?: string;
 }

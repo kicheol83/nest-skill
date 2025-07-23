@@ -6,6 +6,8 @@ import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
 import OrderSchema from '../../schemas/Order.model ';
 import OrderItemSchema from '../../schemas/OrderItem.model';
+import MemberSchema from '../../schemas/Member.model';
+import ProviderSchema from '../../schemas/Provider.model';
 
 @Module({
 	imports: [
@@ -23,6 +25,7 @@ import OrderItemSchema from '../../schemas/OrderItem.model';
 		]),
 		AuthModule,
 		MemberModule,
+		MongooseModule.forFeature([{ name: 'Provider', schema: ProviderSchema }]),
 	],
 	providers: [OrderService, OrderResolver],
 	exports: [OrderService],

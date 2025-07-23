@@ -7,6 +7,10 @@ import { CreateOrderInput, OrderInquiry } from '../../libs/dto/order/order.input
 import { ObjectId } from 'mongoose';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { UpdateOrderInput } from '../../libs/dto/order/order.update';
+import { MemberType } from '../../libs/enums/member.enum';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Resolver()
 export class OrderResolver {
@@ -39,7 +43,34 @@ export class OrderResolver {
 		@Args('input') input: OrderInquiry, //
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Orders> {
-		console.log('📥 input:', input);
+		console.log('Muatation: getMyOrders');
 		return await this.orderService.getMyOrders(memberId, input);
 	}
+
+	@Roles(MemberType.USER)
+	@UseGuards(RolesGuard)
+	@Mutation((returns) => Order)
+	public async updateMyOrder(
+		@Args('input') input: UpdateOrderInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Order> {
+		console.log('Query: updateMyOrder');
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.orderService.updateMyOrder(memberId, input);
+	}
+
+	/** PROVIDER MEMBER **/
+	@Roles(MemberType.PROVIDER)
+	@UseGuards(RolesGuard)
+	@Mutation((returns) => Order)
+	public async updateMyOrderProvider(
+		@Args('input') input: UpdateOrderInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Order> {
+		console.log('Query: updateMyOrderProvider');
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.orderService.updateMyOrderProvider(memberId, input);
+	}
+
+	/** ADMIN **/
 }

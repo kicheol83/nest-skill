@@ -1,19 +1,23 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateOrderInput, OrderInquiry } from '../../libs/dto/order/order.input';
 import { Order, OrderItem, Orders } from '../../libs/dto/order/order';
-import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupMember, lookupProvider, shapeIntoMongoObjectId } from '../../libs/config';
 import { OrderStatus } from '../../libs/enums/order.enum';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { T } from '../../libs/types/common';
+import { UpdateOrderInput } from '../../libs/dto/order/order.update';
+import { OrderStatusSort } from '../../libs/constants/constants';
+import { Member } from '../../libs/dto/member/member';
 
 @Injectable()
 export class OrderService {
 	constructor(
 		@InjectModel('Order') private readonly orderModel: Model<Order>,
 		@InjectModel('OrderItems') private readonly orderItemModel: Model<OrderItem>,
+		@InjectModel('Provider') private readonly providerModel: Model<Member>,
 
 		private readonly memberService: MemberService,
 	) {}
@@ -28,7 +32,7 @@ export class OrderService {
 			throw new Error(Message.BAD_REQUEST);
 		}
 		try {
-			const orderPrice = input.reduce((acc, item) => acc + item.itemPrice, 0); // ✅ orderPrice hisoblanmoqda
+			const orderPrice = input.reduce((acc, item) => acc + item.itemPrice, 0);
 			const webTaxPrice = orderPrice + 150 ? 10 : 0;
 			const totalPrice = orderPrice + webTaxPrice;
 
@@ -130,5 +134,80 @@ export class OrderService {
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
+	}
+
+	public async updateMyOrder(memberId: ObjectId, input: UpdateOrderInput): Promise<Order> {
+		const { _id, orderStatus } = input;
+
+		if (orderStatus !== OrderStatus.CANCELED) {
+			throw new ForbiddenException('You can only cancel your order');
+		}
+
+		const result = await this.orderModel
+			.findOneAndUpdate(
+				{
+					_id: _id,
+					memberId: memberId,
+					orderStatus: {
+						$in: [OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.IN_PROGRESS],
+					},
+				},
+				input,
+				{
+					new: true,
+				},
+			)
+			.exec();
+
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+		if (orderStatus === OrderStatus.CANCELED) {
+			await this.orderModel.findOneAndDelete({
+				_id: _id,
+				memberId: memberId,
+			});
+		}
+
+		return result;
+	}
+
+	/** PROVIDER **/
+	public async updateMyOrderProvider(memberId: ObjectId, input: UpdateOrderInput): Promise<Order> {
+		const { _id: orderId, orderStatus } = input;
+		const orderItemMatch = { orderId: orderId };
+		const providerMemberMatch = { 'providerData.memberId': memberId };
+
+		const result = await this.orderItemModel.aggregate([
+			{ $match: orderItemMatch },
+			lookupProvider,
+			{ $unwind: '$providerData' },
+			{ $match: providerMemberMatch },
+			{
+				$project: {
+					_id: 1,
+					orderId: 1,
+					providerId: 1,
+				},
+			},
+		]);
+
+		if (!result || result.length === 0) {
+			throw new ForbiddenException(Message.YOU_NOT_UPDATE_ORDER);
+		}
+
+		const order = await this.orderModel.findById(orderId);
+		if (!order) throw new NotFoundException(Message.NO_DATA_FOUND);
+
+		if (!OrderStatusSort.includes(orderStatus)) {
+			throw new ForbiddenException(`You cannot change order status to ${orderStatus}`);
+		}
+
+		const updatedOrder = await this.orderModel.findByIdAndUpdate(orderId, { $set: { orderStatus } }, { new: true });
+
+		if (!updatedOrder) {
+			throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		}
+
+		return updatedOrder;
 	}
 }

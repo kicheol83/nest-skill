@@ -20,6 +20,7 @@ export enum Message {
 	PROVIDE_ALLOWED_FORMAT = 'Please provide jpg, jpeg or png images!',
 	SELF_SUBSCRIPTION_DENIED = 'Self subscription is denied!',
 	YOU_CAN_ONLY_CREATE_UP_TO_3_PROVIDERS = 'You can only create up to 3 providers!',
+	YOU_NOT_UPDATE_ORDER = 'You are not authorized to update this order',
 }
 export enum Direction {
 	ASC = 1,
