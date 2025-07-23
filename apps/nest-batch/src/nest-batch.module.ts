@@ -4,8 +4,8 @@ import { NestBatchService } from './nest-batch.service';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
-  controllers: [NestBatchController],
-  providers: [NestBatchService],
+	imports: [ConfigModule.forRoot()],
+	controllers: [NestBatchController],
+	providers: [NestBatchService],
 })
 export class NestBatchModule {}

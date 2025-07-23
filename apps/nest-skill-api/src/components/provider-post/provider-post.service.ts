@@ -1,5 +1,6 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { ProviderPost, ProviderPosts } from '../../libs/dto/provider/provider';
+import { Injectable } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { ProviderPost, ProviderPosts } from '../../libs/dto/provider-post/provider-post';
 import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { MemberService } from '../member/member.service';
@@ -9,17 +10,17 @@ import {
 	ProviderJobsInquiry,
 	ProviderMemberInquiry,
 	ProviderPostInput,
-} from '../../libs/dto/provider/provider.input';
+} from '../../libs/dto/provider-post/provider-post.input';
 import { CREATE_JOB_LIMIT, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { ProviderStatus } from '../../libs/enums/provider.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewService } from '../view/view.service';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import * as moment from 'moment';
-import { ProviderPostUpdate } from '../../libs/dto/provider/provider.update';
+import { ProviderPostUpdate } from '../../libs/dto/provider-post/provider-post.update';
 
 @Injectable()
-export class ProviderService {
+export class ProviderPostService {
 	constructor(
 		@InjectModel('Provider') private readonly providerModel: Model<ProviderPost>,
 		private memberService: MemberService,

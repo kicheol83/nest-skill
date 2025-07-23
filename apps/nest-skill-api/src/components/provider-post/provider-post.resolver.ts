@@ -1,25 +1,25 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UseGuards } from '@nestjs/common';
-import { AuthMember } from '../auth/decorators/authMember.decorator';
-import { ObjectId } from 'mongoose';
-import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { ProviderPost, ProviderPosts } from '../../libs/dto/provider/provider';
+import { MemberType } from '../../libs/enums/member.enum';
+import { ProviderPost, ProviderPosts } from '../../libs/dto/provider-post/provider-post';
 import {
 	AllProviderJobsInquiry,
 	ProviderJobsInquiry,
 	ProviderMemberInquiry,
 	ProviderPostInput,
-} from '../../libs/dto/provider/provider.input';
-import { ProviderService } from './provider.service';
-import { WithoutGuard } from '../auth/guards/without.guard';
+} from '../../libs/dto/provider-post/provider-post.input';
+import { ObjectId } from 'mongoose';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { shapeIntoMongoObjectId } from '../../libs/config';
-import { ProviderPostUpdate } from '../../libs/dto/provider/provider.update';
+import { ProviderPostUpdate } from '../../libs/dto/provider-post/provider-post.update';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { ProviderPostService } from './provider-post.service';
 
 @Resolver()
-export class ProviderResolver {
-	constructor(private readonly providerService: ProviderService) {}
+export class ProviderPostResolver {
+	constructor(private readonly providerPostService: ProviderPostService) {}
 
 	@Roles(MemberType.PROVIDER)
 	@UseGuards(RolesGuard)
@@ -30,7 +30,7 @@ export class ProviderResolver {
 	): Promise<ProviderPost> {
 		console.log('Mutation: createProvider');
 		input.memberId = memberId;
-		return await this.providerService.createProvider(input);
+		return await this.providerPostService.createProvider(input);
 	}
 
 	@UseGuards(WithoutGuard)
@@ -41,7 +41,7 @@ export class ProviderResolver {
 	): Promise<ProviderPost> {
 		console.log('Query: getProvider');
 		const providerId = shapeIntoMongoObjectId(input);
-		return await this.providerService.getProvider(memberId, providerId);
+		return await this.providerPostService.getProvider(memberId, providerId);
 	}
 
 	@Roles(MemberType.PROVIDER)
@@ -53,7 +53,7 @@ export class ProviderResolver {
 	): Promise<ProviderPost> {
 		console.log('Mutation: updateProviderPost');
 		input._id = shapeIntoMongoObjectId(input._id);
-		return await this.providerService.updateProviderPost(memberId, input);
+		return await this.providerPostService.updateProviderPost(memberId, input);
 	}
 
 	@UseGuards(WithoutGuard)
@@ -63,7 +63,7 @@ export class ProviderResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<ProviderPosts> {
 		console.log('Query: getProviderJobs');
-		return await this.providerService.getProviderJobs(memberId, input);
+		return await this.providerPostService.getProviderJobs(memberId, input);
 	}
 
 	@Roles(MemberType.PROVIDER)
@@ -74,7 +74,7 @@ export class ProviderResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<ProviderPosts> {
 		console.log('Query: getProviderMemberJobs');
-		return await this.providerService.getProviderMemberJobs(memberId, input);
+		return await this.providerPostService.getProviderMemberJobs(memberId, input);
 	}
 
 	/** ADMIN **/
@@ -86,7 +86,7 @@ export class ProviderResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<ProviderPosts> {
 		console.log('Query: getAllProviderJobsByAdmin');
-		return await this.providerService.getAllProviderJobsByAdmin(input);
+		return await this.providerPostService.getAllProviderJobsByAdmin(input);
 	}
 
 	@Roles(MemberType.ADMIN)
@@ -95,7 +95,7 @@ export class ProviderResolver {
 	public async updateProviderPostyByAdmin(@Args('input') input: ProviderPostUpdate): Promise<ProviderPost> {
 		console.log('Mutation: updateProviderPostyByAdmin');
 		input._id = shapeIntoMongoObjectId(input._id);
-		return await this.providerService.updateProviderPostyByAdmin(input);
+		return await this.providerPostService.updateProviderPostyByAdmin(input);
 	}
 
 	@Roles(MemberType.ADMIN)
@@ -104,6 +104,6 @@ export class ProviderResolver {
 	public async removeProviderPostyByAdmin(@Args('providerId') input: string): Promise<ProviderPost> {
 		console.log('Mutation: removeProviderPostyByAdmin');
 		const providerId = shapeIntoMongoObjectId(input);
-		return await this.providerService.removeProviderPostyByAdmin(providerId);
+		return await this.providerPostService.removeProviderPostyByAdmin(providerId);
 	}
 }
