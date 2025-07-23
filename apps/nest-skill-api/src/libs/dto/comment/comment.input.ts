@@ -49,7 +49,7 @@ export class CommentsInquiry {
 
 	@IsOptional()
 	@Field(() => Direction, { nullable: true })
-	direction?: Direction;
+	directions?: Direction;
 
 	@IsNotEmpty()
 	@Field(() => CISearch)

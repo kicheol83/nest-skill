@@ -20,5 +20,6 @@ import { MemberModule } from '../member/member.module';
 		MemberModule,
 	],
 	providers: [ProviderPostService, ProviderPostResolver],
+	exports: [ProviderPostService],
 })
 export class ProviderPostModule {}
