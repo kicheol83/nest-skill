@@ -9,7 +9,7 @@ import { OrderStatus } from '../../libs/enums/order.enum';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { T } from '../../libs/types/common';
 import { UpdateOrderInput } from '../../libs/dto/order/order.update';
-import { OrderStatusSort } from '../../libs/constants/constants';
+import { OrderStatusAdmin, OrderStatusMyOrder, OrderStatusSort } from '../../libs/constants/constants';
 import { Member } from '../../libs/dto/member/member';
 
 @Injectable()
@@ -97,17 +97,7 @@ export class OrderService {
 		const match: T = {
 			memberId: memberId,
 			orderStatus: {
-				$in: [
-					OrderStatus.PENDING,
-					OrderStatus.CONFIRMED,
-					OrderStatus.IN_PROGRESS,
-					OrderStatus.COMPLETED,
-					OrderStatus.PAID,
-					OrderStatus.CANCELED,
-					OrderStatus.REJECTED,
-					OrderStatus.EXPIRED,
-					OrderStatus.REFUNDED,
-				],
+				$in: [OrderStatusMyOrder],
 			},
 		};
 		const sort: T = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
@@ -199,6 +189,59 @@ export class OrderService {
 		if (!order) throw new NotFoundException(Message.NO_DATA_FOUND);
 
 		if (!OrderStatusSort.includes(orderStatus)) {
+			throw new ForbiddenException(`You cannot change order status to ${orderStatus}`);
+		}
+
+		const updatedOrder = await this.orderModel.findByIdAndUpdate(orderId, { $set: { orderStatus } }, { new: true });
+
+		if (!updatedOrder) {
+			throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		}
+
+		return updatedOrder;
+	}
+
+	/** ADMIN **/
+	public async getAllOrdersByAdmin(memberId: ObjectId, input: OrderInquiry): Promise<Orders> {
+		const match: T = {
+			orderStatus: {
+				$in: OrderStatusAdmin,
+			},
+		};
+		const sort: T = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
+
+		console.log('match:', match);
+
+		const result = await this.orderModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
+	}
+
+	public async updateOrderByAdmin(memberId: ObjectId, input: UpdateOrderInput): Promise<Order> {
+		const { _id: orderId, orderStatus } = input;
+
+		const order = await this.orderModel.findById(orderId);
+		if (!order) throw new NotFoundException(Message.NO_DATA_FOUND);
+
+		if (!OrderStatusAdmin.includes(orderStatus)) {
 			throw new ForbiddenException(`You cannot change order status to ${orderStatus}`);
 		}
 

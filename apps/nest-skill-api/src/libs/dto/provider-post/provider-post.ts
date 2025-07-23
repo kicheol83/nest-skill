@@ -97,4 +97,7 @@ export class ProviderPosts {
 
 	@Field(() => [TotalCounter], { nullable: true })
 	metaCounter: TotalCounter[];
+
+	@Field(() => [String])
+	text: string[];
 }

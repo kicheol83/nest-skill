@@ -73,4 +73,26 @@ export class OrderResolver {
 	}
 
 	/** ADMIN **/
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Query((returns) => Orders)
+	public async getAllOrdersByAdmin(
+		@Args('input') input: OrderInquiry, //
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Orders> {
+		console.log('Muatation: getAllOrdersByAdmin');
+		return await this.orderService.getAllOrdersByAdmin(memberId, input);
+	}
+
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation((returns) => Order)
+	public async updateOrderByAdmin(
+		@Args('input') input: UpdateOrderInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Order> {
+		console.log('Query: updateOrderByAdmin');
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.orderService.updateOrderByAdmin(memberId, input);
+	}
 }

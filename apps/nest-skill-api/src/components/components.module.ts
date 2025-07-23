@@ -10,7 +10,6 @@ import { LikeModule } from './like/like.module';
 import { FollowModule } from './follow/follow.module';
 import { ViewModule } from './view/view.module';
 import { BoardArticleModule } from './board-article/board-article.module';
-import { OrderItemModule } from './order-item/order-item.module';
 import { ReviewModule } from './review/review.module';
 import { ProviderPostModule } from './provider-post/provider-post.module';
 
@@ -27,7 +26,6 @@ import { ProviderPostModule } from './provider-post/provider-post.module';
 		FollowModule,
 		ViewModule,
 		BoardArticleModule,
-		OrderItemModule,
 		ReviewModule,
 		ProviderPostModule,
 	],
