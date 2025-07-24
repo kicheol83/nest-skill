@@ -69,6 +69,10 @@ export class ProviderPostService {
 			}
 
 			// meLiked
+			const likeInput = { memberId: memberId, likeRefId: providerId, likeGroup: LikeGroup.PROVIDER };
+			targetProvider.meLiked = await this.likeService.checkLikeExistence(likeInput);
+
+			console.log('targetProvider =>', targetProvider);
 		}
 
 		targetProvider.memberData = await this.memberService.getMember(null, targetProvider.memberId);

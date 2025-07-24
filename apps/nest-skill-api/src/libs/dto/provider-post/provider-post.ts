@@ -10,6 +10,7 @@ import {
 } from '../../enums/provider.enum';
 import { ObjectId } from 'mongoose';
 import { Member, TotalCounter } from '../member/member';
+import { MeLiked } from '../like/like';
 
 @ObjectType()
 export class ProviderPost {
@@ -88,6 +89,9 @@ export class ProviderPost {
 	/** from aggregation **/
 	@Field(() => Member, { nullable: true })
 	memberData?: Member;
+
+	@Field(() => [MeLiked], { nullable: true })
+	meLiked?: MeLiked[];
 }
 
 @ObjectType()
