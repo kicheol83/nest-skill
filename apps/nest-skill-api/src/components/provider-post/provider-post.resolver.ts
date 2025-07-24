@@ -16,6 +16,7 @@ import { shapeIntoMongoObjectId } from '../../libs/config';
 import { ProviderPostUpdate } from '../../libs/dto/provider-post/provider-post.update';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { ProviderPostService } from './provider-post.service';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class ProviderPostResolver {
@@ -75,6 +76,19 @@ export class ProviderPostResolver {
 	): Promise<ProviderPosts> {
 		console.log('Query: getProviderMemberJobs');
 		return await this.providerPostService.getProviderMemberJobs(memberId, input);
+	}
+
+	/** LIKE **/
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => ProviderPost)
+	public async likeTargetProviderPost(
+		@Args('_id') input: string,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPost> {
+		console.log('Mutation: likeTargetProviderPost');
+		const likeRefId = shapeIntoMongoObjectId(input);
+		return await this.providerPostService.likeTargetProviderPost(memberId, likeRefId);
 	}
 
 	/** ADMIN **/

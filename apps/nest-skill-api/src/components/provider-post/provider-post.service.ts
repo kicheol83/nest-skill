@@ -18,6 +18,9 @@ import { ViewService } from '../view/view.service';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import * as moment from 'moment';
 import { ProviderPostUpdate } from '../../libs/dto/provider-post/provider-post.update';
+import { LikeInput } from '../../libs/dto/like/like.input';
+import { LikeService } from '../like/like.service';
+import { LikeGroup } from '../../libs/enums/like.enum';
 
 @Injectable()
 export class ProviderPostService {
@@ -25,6 +28,7 @@ export class ProviderPostService {
 		@InjectModel('Provider') private readonly providerModel: Model<ProviderPost>,
 		private memberService: MemberService,
 		private viewService: ViewService,
+		private likeService: LikeService,
 	) {}
 
 	public async createProvider(input: ProviderPostInput): Promise<ProviderPost> {
@@ -211,6 +215,27 @@ export class ProviderPostService {
 		}
 
 		return result[0];
+	}
+
+	/** LIKE **/
+
+	public async likeTargetProviderPost(memberId: ObjectId, likeRefId: ObjectId): Promise<ProviderPost> {
+		const target: ProviderPost = await this.providerModel
+			.findOne({ _id: likeRefId, providerStatus: ProviderStatus.ACTIVE })
+			.exec();
+		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		const input: LikeInput = {
+			memberId: memberId,
+			likeRefId: likeRefId,
+			likeGroup: LikeGroup.PROVIDER,
+		};
+
+		const modifier: number = await this.likeService.toggleLike(input);
+		const result = await this.providerStatsEditor({ _id: likeRefId, targetKey: 'providerLikes', modifier: modifier });
+
+		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+		return result;
 	}
 
 	public async getAllProviderJobsByAdmin(input: AllProviderJobsInquiry): Promise<ProviderPosts> {
