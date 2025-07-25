@@ -70,12 +70,12 @@ export class MemberResolver {
 
 	@UseGuards(WithoutGuard)
 	@Query(() => Members)
-	public async getProvider(
+	public async getProviderMember(
 		@Args('input') input: ProviderInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Members> {
 		console.log('Query: getProvider');
-		return await this.memberService.getProvider(memberId, input);
+		return await this.memberService.getProviderMember(memberId, input);
 	}
 
 	/** ADMIN **/

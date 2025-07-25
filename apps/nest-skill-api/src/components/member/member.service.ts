@@ -15,6 +15,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeService } from '../like/like.service';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
+import { lookupAuthMemberLiked } from '../../libs/config';
 
 @Injectable()
 export class MemberService {
@@ -104,7 +105,7 @@ export class MemberService {
 		return result ? [{ followerId: followerId, followingId: followingId, myFollowing: true }] : [];
 	}
 
-	public async getProvider(memberId: ObjectId, input: ProviderInquiry): Promise<Members> {
+	public async getProviderMember(memberId: ObjectId, input: ProviderInquiry): Promise<Members> {
 		const { text } = input.search;
 		const match: T = { memberType: MemberType.PROVIDER, memberStatus: MemberStatus.ACTIVE };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
@@ -118,7 +119,11 @@ export class MemberService {
 				{ $sort: sort },
 				{
 					$facet: {
-						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupAuthMemberLiked(memberId, '$_id'),
+						],
 						metaCounter: [{ $count: 'total' }],
 					},
 				},

@@ -11,7 +11,7 @@ import {
 	ProviderMemberInquiry,
 	ProviderPostInput,
 } from '../../libs/dto/provider-post/provider-post.input';
-import { CREATE_JOB_LIMIT, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { CREATE_JOB_LIMIT, lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { ProviderStatus } from '../../libs/enums/provider.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewService } from '../view/view.service';
@@ -125,6 +125,7 @@ export class ProviderPostService {
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
 							// meLiked
+							lookupAuthMemberLiked(memberId),
 							lookupMember,
 							{ $unwind: '$memberData' },
 						],

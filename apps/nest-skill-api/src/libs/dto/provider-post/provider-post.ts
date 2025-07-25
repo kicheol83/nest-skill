@@ -103,5 +103,5 @@ export class ProviderPosts {
 	metaCounter: TotalCounter[];
 
 	@Field(() => [String])
-	text: string[];
+	text?: string[];
 }
