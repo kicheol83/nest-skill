@@ -78,6 +78,16 @@ export class ProviderPostResolver {
 		return await this.providerPostService.getFavorites(memberId, input);
 	}
 
+	@UseGuards(AuthGuard)
+	@Query((returns) => ProviderPosts)
+	public async getVisited(
+		@Args('input') input: OrdinaryInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPosts> {
+		console.log('Query: getVisited');
+		return await this.providerPostService.getVisited(memberId, input);
+	}
+
 	@Roles(MemberType.PROVIDER)
 	@UseGuards(RolesGuard)
 	@Query((returns) => ProviderPosts)

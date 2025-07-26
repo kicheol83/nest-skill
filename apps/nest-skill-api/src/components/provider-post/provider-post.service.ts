@@ -248,6 +248,10 @@ export class ProviderPostService {
 		return await this.likeService.getFavoriteProviderPost(memberId, input);
 	}
 
+	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<ProviderPosts> {
+		return await this.viewService.getVisitedProperties(memberId, input);
+	}
+
 	public async getAllProviderJobsByAdmin(input: AllProviderJobsInquiry): Promise<ProviderPosts> {
 		const { providerStatus, providerLocationList } = input.search;
 		const match: T = {};
