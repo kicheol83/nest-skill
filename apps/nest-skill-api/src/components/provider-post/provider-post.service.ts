@@ -7,6 +7,7 @@ import { MemberService } from '../member/member.service';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import {
 	AllProviderJobsInquiry,
+	OrdinaryInquiry,
 	ProviderJobsInquiry,
 	ProviderMemberInquiry,
 	ProviderPostInput,
@@ -241,6 +242,10 @@ export class ProviderPostService {
 
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 		return result;
+	}
+
+	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<ProviderPosts> {
+		return await this.likeService.getFavoriteProviderPost(memberId, input);
 	}
 
 	public async getAllProviderJobsByAdmin(input: AllProviderJobsInquiry): Promise<ProviderPosts> {

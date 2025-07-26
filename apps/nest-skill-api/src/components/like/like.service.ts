@@ -1,9 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Like, MeLiked } from '../../libs/dto/like/like';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { Message, T } from '../../libs/types/common';
+import { lookupFavorite } from '../../libs/config';
+import { LikeGroup } from '../../libs/enums/like.enum';
+import { OrdinaryInquiry } from '../../libs/dto/provider-post/provider-post.input';
+import { ProviderPosts } from '../../libs/dto/provider-post/provider-post';
 
 @Injectable()
 export class LikeService {
@@ -34,5 +38,45 @@ export class LikeService {
 		const result = await this.likeModel.findOne({ memberId: memberId, likeRefId: likeRefId }).exec();
 		console.log('rersult =>', result);
 		return result ? [{ memberId: memberId, likeRefId: likeRefId, myFavorite: true }] : [];
+	}
+
+	public async getFavoriteProviderPost(memberId: ObjectId, input: OrdinaryInquiry): Promise<ProviderPosts> {
+		const { page, limit } = input;
+		const match: T = { likeGroup: LikeGroup.PROVIDER, memberId: memberId };
+
+		const data: T = await this.likeModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: { updatedAt: -1 } },
+				{
+					$lookup: {
+						from: 'provider',
+						localField: 'likeRefId',
+						foreignField: '_id',
+						as: 'favoriteProviderPost',
+					},
+				},
+				{ $unwind: '$favoriteProviderPost' },
+				{
+					$facet: {
+						list: [
+							{
+								$skip: (page - 1) * limit,
+							},
+							{
+								$limit: limit,
+							},
+							lookupFavorite,
+							{ $unwind: '$favoriteProviderPost.memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		const result: ProviderPosts = { list: [], metaCounter: data[0].metaCounter };
+		result.list = data[0].list.map((ele) => ele.favoriteProviderPost);
+		return result;
 	}
 }

@@ -6,6 +6,7 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { ProviderPost, ProviderPosts } from '../../libs/dto/provider-post/provider-post';
 import {
 	AllProviderJobsInquiry,
+	OrdinaryInquiry,
 	ProviderJobsInquiry,
 	ProviderMemberInquiry,
 	ProviderPostInput,
@@ -65,6 +66,16 @@ export class ProviderPostResolver {
 	): Promise<ProviderPosts> {
 		console.log('Query: getProviderJobs');
 		return await this.providerPostService.getProviderJobs(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Query((returns) => ProviderPosts)
+	public async getFavorites(
+		@Args('input') input: OrdinaryInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPosts> {
+		console.log('Query: getFavorites');
+		return await this.providerPostService.getFavorites(memberId, input);
 	}
 
 	@Roles(MemberType.PROVIDER)

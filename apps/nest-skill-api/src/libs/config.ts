@@ -137,3 +137,12 @@ export const lookupAuthMemberFollowed = (input: LookAuthMemberFollowed) => {
 		},
 	};
 };
+
+export const lookupFavorite = {
+	$lookup: {
+		from: 'members',
+		localField: 'favoriteProviderPost.memberId',
+		foreignField: '_id',
+		as: 'favoriteProviderPost.memberData',
+	},
+};
