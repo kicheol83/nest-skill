@@ -16,7 +16,7 @@ const ReviewSchema = new Schema(
 			default: [],
 		},
 
-		orderId: {
+		orderItemId: {
 			type: Schema.Types.ObjectId,
 			required: true,
 			ref: 'Order',

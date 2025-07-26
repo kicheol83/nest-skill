@@ -19,6 +19,7 @@ export const availableBoardArticleSorts = ['createdAt', 'updatedAt', 'articleLik
 
 export const availableOrdersSorts = ['createdAt', 'updatedAt', 'orderPrice', 'orderDelivery', 'orderStatus'];
 export const availableCommentSorts = ['createdAt', 'updatedAt'];
+export const availableReviewSorts = ['createdAt', 'updatedAt'];
 
 /** IMAGE CONFIGURATION **/
 import { v4 as uuidv4 } from 'uuid';

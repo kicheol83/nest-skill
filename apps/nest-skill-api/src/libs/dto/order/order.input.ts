@@ -15,7 +15,7 @@ export class CreateOrderInput {
 	@Field(() => String)
 	providerId: string;
 
-	orderId?: ObjectId;
+	order?: ObjectId;
 
 	memberId?: ObjectId;
 }
