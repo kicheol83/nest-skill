@@ -61,7 +61,7 @@ export class ReviewService {
 	}
 
 	// review.service.ts
-	async updateReview(memberId: ObjectId, input: UpdateReviewInput): Promise<Review> {
+	public async updateReview(memberId: ObjectId, input: UpdateReviewInput): Promise<Review> {
 		const { _id } = input;
 
 		const review = await this.reviewModel.findOne({ _id: _id });
@@ -138,5 +138,65 @@ export class ReviewService {
 
 		await this.reviewModel.findByIdAndDelete(review._id);
 		return true;
+	}
+
+	/** ROLES => ADMIN GRAPHql **/
+	public async getAllReviewByAdmin(input: ReviewInquiry): Promise<Reviews> {
+		const { text } = input.search;
+		const match: T = {};
+		const sort: T = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
+
+		if (text) match.reviewComments = { $regex: new RegExp(text, 'i') };
+
+		console.log('match:', match);
+
+		const result = await this.reviewModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
+	}
+
+	public async updateReviewByAdmin(input: UpdateReviewInput): Promise<Review> {
+		const { _id } = input;
+
+		const review = await this.reviewModel.findOne({ _id: _id });
+
+		if (!review) {
+			throw new NotFoundException(Message.NO_DATA_FOUND);
+		}
+
+		const result = await this.reviewModel.findOneAndUpdate({ _id: _id }, input, { new: true });
+		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		return result;
+	}
+
+	public async deleteReviewByAdmin(reviewId: string): Promise<Review> {
+		const rvId = shapeIntoMongoObjectId(reviewId);
+		const review = await this.reviewModel.findById(rvId);
+
+		if (!review) {
+			throw new NotFoundException(Message.NO_DATA_FOUND);
+		}
+
+		const result = await this.reviewModel.findByIdAndDelete(review._id);
+		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
+		return result;
 	}
 }

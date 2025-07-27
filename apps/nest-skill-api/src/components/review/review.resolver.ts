@@ -69,4 +69,37 @@ export class ReviewResolver {
 		console.log('Query: deleteMyReview');
 		return this.reviewService.deleteMyReview(memberId, reviewId);
 	}
+
+	/** ADMIN **/
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Query((returns) => Reviews)
+	public async getAllReviewByAdmin(
+		@Args('input') input: ReviewInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Reviews> {
+		console.log('Query: getAllReviewByAdmin');
+		return await this.reviewService.getAllReviewByAdmin(input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation((returns) => Review)
+	public async updateReviewByAdmin(
+		@Args('input') input: UpdateReviewInput,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Review> {
+		console.log('Mutation: updateReviewByAdmin');
+		input._id = shapeIntoMongoObjectId(input._id);
+		return await this.reviewService.updateReviewByAdmin(input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation((returns) => Review)
+	public async deleteReviewByAdmin(
+		@Args('_id') reviewId: string, //
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Review> {
+		console.log('Query: deleteReviewByAdmin');
+		return this.reviewService.deleteReviewByAdmin(reviewId);
+	}
 }
