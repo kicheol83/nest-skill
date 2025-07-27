@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 import { PaymentMethod, PaymentStatus } from '../libs/enums/payment.enum';
 
 const PaymentSchema = new Schema(

@@ -75,7 +75,7 @@ export class ProviderPostInput {
 	providerAddress: string;
 
 	@IsNotEmpty()
-	@Length(3, 50)
+	@Length(3, 10)
 	@Field(() => String)
 	providerTitle: string;
 

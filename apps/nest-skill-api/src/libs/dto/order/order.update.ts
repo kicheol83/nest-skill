@@ -1,12 +1,13 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { IsOptional, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { OrderStatus } from '../../enums/order.enum';
+import { ObjectId } from 'mongoose';
 
 @InputType()
 export class UpdateOrderInput {
-	@IsOptional()
+	@IsNotEmpty()
 	@Field(() => String)
-	_id: string;
+	_id: ObjectId;
 
 	@IsOptional()
 	@Min(0)
