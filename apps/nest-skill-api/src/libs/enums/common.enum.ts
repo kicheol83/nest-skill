@@ -21,6 +21,8 @@ export enum Message {
 	SELF_SUBSCRIPTION_DENIED = 'Self subscription is denied!',
 	YOU_CAN_ONLY_CREATE_UP_TO_3_PROVIDERS = 'You can only create up to 3 providers!',
 	YOU_NOT_UPDATE_ORDER = 'You are not authorized to update this order',
+	REVIEW_UPDATE_YOUT_OWN_REVIEW = 'You can only update your own review!',
+	DELETE_FAILED = 'You can only delete your own reviews!',
 }
 export enum Direction {
 	ASC = 1,

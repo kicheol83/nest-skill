@@ -39,6 +39,10 @@ class RSearch {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	reviewComments?: string;
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	memberId?: ObjectId;
 }
 
 @InputType()
@@ -65,4 +69,10 @@ export class ReviewInquiry {
 	@IsNotEmpty()
 	@Field(() => RSearch)
 	search: RSearch;
+}
+
+@InputType()
+export class DeleteReviewInput {
+	@Field(() => String)
+	id: string;
 }

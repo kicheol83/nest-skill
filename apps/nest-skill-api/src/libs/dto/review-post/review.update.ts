@@ -1,8 +1,13 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { IsOptional, Min, Max } from 'class-validator';
+import { IsOptional, Min, Max, IsNotEmpty } from 'class-validator';
+import { ObjectId } from 'mongoose';
 
 @InputType()
 export class UpdateReviewInput {
+	@IsNotEmpty()
+	@Field(() => String)
+	_id: ObjectId;
+
 	@IsOptional()
 	@Min(1)
 	@Max(5)
