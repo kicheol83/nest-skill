@@ -89,6 +89,13 @@ export class Member {
 	@Field(() => String, { nullable: true })
 	accessToken?: string;
 
+	/** from Google Auth */
+	@Field(() => String)
+	memberEmail: string;
+
+	@Field(() => String)
+	googleId: string;
+
 	/**from aggregation **/
 	@Field(() => [MeLiked], { nullable: true })
 	meLiked?: MeLiked[];
@@ -110,4 +117,10 @@ export class Members {
 
 	@Field(() => [TotalCounter], { nullable: true })
 	metaCounter: TotalCounter[];
+}
+
+@ObjectType()
+export class AuthPayload {
+	@Field()
+	accessToken: string;
 }

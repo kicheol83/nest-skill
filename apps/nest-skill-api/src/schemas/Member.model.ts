@@ -43,6 +43,17 @@ const MemberSchema = new Schema(
 			type: String,
 		},
 
+		memberEmail: {
+			type: String,
+			index: { unique: true, sparse: true },
+			required: false,
+		},
+
+		googleId: {
+			type: String,
+			index: { unique: true, sparse: true },
+		},
+
 		memberImage: {
 			type: String,
 			default: '',

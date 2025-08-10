@@ -43,6 +43,12 @@ export class LoginInput {
 }
 
 @InputType()
+export class GoogleLoginInput {
+	@Field()
+	code: string;
+}
+
+@InputType()
 class AIsearch {
 	@IsNotEmpty()
 	@Field(() => String, { nullable: true })
