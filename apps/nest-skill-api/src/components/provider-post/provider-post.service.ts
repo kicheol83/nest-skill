@@ -13,7 +13,7 @@ import {
 	ProviderPostInput,
 } from '../../libs/dto/provider-post/provider-post.input';
 import { CREATE_JOB_LIMIT, lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
-import { ProviderStatus } from '../../libs/enums/provider.enum';
+import { ProviderStatus, ProviderType } from '../../libs/enums/provider.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewService } from '../view/view.service';
 import { ViewGroup } from '../../libs/enums/view.enum';
@@ -36,10 +36,15 @@ export class ProviderPostService {
 		try {
 			const existingCount = await this.providerModel.countDocuments({ memberId: input.memberId });
 
+			console.log('existingCount', existingCount);
+
 			if (existingCount >= CREATE_JOB_LIMIT) {
 				throw new BadRequestException(Message.YOU_CAN_ONLY_CREATE_UP_TO_3_PROVIDERS);
 			}
+			console.log('before existingCount', existingCount);
+
 			const result = await this.providerModel.create(input);
+			console.log('result', result);
 			await this.memberService.memberStatisEditor({
 				_id: result.memberId,
 				targetKey: 'memberJobs',
@@ -172,10 +177,8 @@ export class ProviderPostService {
 		if (workPrice) match.providerWorkPrice = { $gte: workPrice.start, $lte: workPrice.end };
 
 		if (text) match.providerTitle = { $regex: new RegExp(text, 'i') };
-		if (options) {
-			match['$or'] = options.map((ele) => {
-				return { [ele]: true };
-			});
+		if (options && options.length) {
+			match['$or'] = options.map((ele) => ({ [ele]: true }));
 		}
 	}
 
@@ -221,6 +224,10 @@ export class ProviderPostService {
 		}
 
 		return result[0];
+	}
+
+	public async getProviderPostCount(memberId: ObjectId, type: ProviderType): Promise<number> {
+		return this.providerModel.countDocuments({ providerType: type, memberId }).exec();
 	}
 
 	/** LIKE **/

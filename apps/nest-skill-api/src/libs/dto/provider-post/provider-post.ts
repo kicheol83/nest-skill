@@ -105,3 +105,9 @@ export class ProviderPosts {
 	@Field(() => [String])
 	text?: string[];
 }
+
+@ObjectType()
+export class ProviderPostCountOutput {
+	@Field(() => Int)
+	count: number;
+}

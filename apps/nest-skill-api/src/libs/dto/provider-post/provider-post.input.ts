@@ -75,7 +75,7 @@ export class ProviderPostInput {
 	providerAddress: string;
 
 	@IsNotEmpty()
-	@Length(3, 10)
+	@Length(3, 50)
 	@Field(() => String)
 	providerTitle: string;
 
@@ -98,10 +98,10 @@ export class ProviderPostInput {
 /** PROVIDER JOB POST SORTS **/
 @InputType()
 export class WorkTime {
-	@Field(() => Int)
+	@Field(() => String)
 	start: string;
 
-	@Field(() => Int)
+	@Field(() => String)
 	end: string;
 }
 
@@ -146,8 +146,8 @@ class PISearch {
 
 	@IsOptional()
 	@IsIn(availableDayLimit, { each: true })
-	@Field(() => [String], { nullable: true })
-	options?: string[];
+	@Field(() => [Number], { nullable: true })
+	options?: number[];
 
 	@IsOptional()
 	@Field(() => WorkTime, { nullable: true })

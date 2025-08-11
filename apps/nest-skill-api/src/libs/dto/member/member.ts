@@ -90,11 +90,11 @@ export class Member {
 	accessToken?: string;
 
 	/** from Google Auth */
-	@Field(() => String)
-	memberEmail: string;
+	@Field(() => String, { nullable: true })
+	memberEmail?: string;
 
-	@Field(() => String)
-	googleId: string;
+	@Field(() => String, { nullable: true })
+	googleId?: string;
 
 	/**from aggregation **/
 	@Field(() => [MeLiked], { nullable: true })

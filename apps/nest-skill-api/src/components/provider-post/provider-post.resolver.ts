@@ -3,7 +3,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberType } from '../../libs/enums/member.enum';
-import { ProviderPost, ProviderPosts } from '../../libs/dto/provider-post/provider-post';
+import { ProviderPost, ProviderPostCountOutput, ProviderPosts } from '../../libs/dto/provider-post/provider-post';
 import {
 	AllProviderJobsInquiry,
 	OrdinaryInquiry,
@@ -18,6 +18,7 @@ import { ProviderPostUpdate } from '../../libs/dto/provider-post/provider-post.u
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { ProviderPostService } from './provider-post.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { ProviderType } from '../../libs/enums/provider.enum';
 
 @Resolver()
 export class ProviderPostResolver {
@@ -97,6 +98,16 @@ export class ProviderPostResolver {
 	): Promise<ProviderPosts> {
 		console.log('Query: getProviderMemberJobs');
 		return await this.providerPostService.getProviderMemberJobs(memberId, input);
+	}
+
+	@UseGuards(WithoutGuard)
+	@Query(() => ProviderPostCountOutput)
+	public async getProviderPostCount(
+		@Args('type', { type: () => ProviderType }) type: ProviderType,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<ProviderPostCountOutput> {
+		const count = await this.providerPostService.getProviderPostCount(memberId, type);
+		return { count };
 	}
 
 	/** LIKE **/
