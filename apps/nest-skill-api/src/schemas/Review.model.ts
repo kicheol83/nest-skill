@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-
+// reviewRating default => 0
 const ReviewSchema = new Schema(
 	{
 		reviewRating: {

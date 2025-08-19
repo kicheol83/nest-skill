@@ -44,13 +44,14 @@ export class LoginInput {
 
 @InputType()
 export class GoogleLoginInput {
-	@Field()
+	@IsNotEmpty()
+	@Field(() => String)
 	code: string;
 }
 
 @InputType()
 class AIsearch {
-	@IsNotEmpty()
+	@IsOptional()
 	@Field(() => String, { nullable: true })
 	text?: string;
 }
@@ -68,7 +69,7 @@ export class ProviderInquiry {
 	limit: number;
 
 	@IsOptional()
-	@IsIn([availableProvidersUserSorts])
+	@IsIn(availableProvidersUserSorts)
 	@Field(() => String, { nullable: true })
 	sort?: string;
 

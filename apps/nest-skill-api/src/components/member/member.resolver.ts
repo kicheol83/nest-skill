@@ -121,7 +121,9 @@ export class MemberResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Member> {
 		console.log('Mutation: likeTargetMember');
+		console.log('id =>', input);
 		const likeRefId = shapeIntoMongoObjectId(input);
+		console.log('likeRefId =>', likeRefId);
 		return await this.memberService.likeTargetMember(memberId, likeRefId);
 	}
 
@@ -164,13 +166,13 @@ export class MemberResolver {
 		console.log('Mutation: imagesUploader');
 
 		const uploadedImages = [];
-		const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<Promise<void>> => {
+
+		const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<void> => {
 			try {
 				const { filename, mimetype, encoding, createReadStream } = await img;
 
 				const validMime = validMimeTypes.includes(mimetype);
 				if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
-
 				const imageName = getSerialForImage(filename);
 				const url = `uploads/${target}/${imageName}`;
 				const stream = createReadStream();

@@ -97,7 +97,7 @@ export class OrderService {
 		const match: T = {
 			memberId: memberId,
 			orderStatus: {
-				$in: [OrderStatusMyOrder],
+				$in: OrderStatusMyOrder,
 			},
 		};
 		const sort: T = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
@@ -122,7 +122,7 @@ export class OrderService {
 			])
 			.exec();
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-
+		console.log('result =>', result[0]);
 		return result[0];
 	}
 

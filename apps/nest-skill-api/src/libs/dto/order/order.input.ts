@@ -27,6 +27,10 @@ class ORsearch {
 	text?: string;
 
 	@IsOptional()
+	@Field(() => String, { nullable: true })
+	memberId?: string;
+
+	@IsOptional()
 	@Field(() => OrderStatus, { nullable: true })
 	orderStatus?: OrderStatus;
 }
