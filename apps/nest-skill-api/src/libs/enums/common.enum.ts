@@ -25,6 +25,7 @@ export enum Message {
 	DELETE_FAILED = 'You can only delete your own reviews!',
 	YOU_THIS_ORDER_NO_PAYMET = 'You this order no payment',
 	PAYMENT_NOT_FOUND = 'Payment not found!',
+	NOTICE_NOT_FOUN = 'Notice not found!',
 }
 export enum Direction {
 	ASC = 1,

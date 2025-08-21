@@ -6,7 +6,7 @@ import { availableNoticeSorts } from '../../config';
 import { ObjectId } from 'mongoose';
 
 @InputType()
-export class CreateNoticeDto {
+export class CreateNotice {
 	@IsNotEmpty()
 	@Field(() => NoticeCategory)
 	noticeCategory: NoticeCategory;

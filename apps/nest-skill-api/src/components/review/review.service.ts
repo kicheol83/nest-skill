@@ -60,7 +60,6 @@ export class ReviewService {
 		}
 	}
 
-	// review.service.ts
 	public async updateReview(memberId: ObjectId, input: UpdateReviewInput): Promise<Review> {
 		const { _id } = input;
 
