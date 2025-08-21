@@ -26,6 +26,12 @@ export class Payment {
 	@Field(() => String)
 	memberId: string;
 
+	@Field(() => Date, { nullable: true })
+	deletedAt?: Date;
+
+	@Field(() => Date)
+	updatedAt: Date;
+
 	@Field(() => Date)
 	createdAt: Date;
 

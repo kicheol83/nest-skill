@@ -34,7 +34,7 @@ class ORDsearch {
 }
 
 @InputType()
-export class ReviewInquiry {
+export class PaymentInquiry {
 	@IsNotEmpty()
 	@Min(1)
 	@Field(() => Int)
@@ -75,7 +75,7 @@ class ORDAsearch {
 }
 
 @InputType()
-export class AllReviewsInquiry {
+export class AllPaymentsInquiry {
 	@IsNotEmpty()
 	@Min(1)
 	@Field(() => Int)

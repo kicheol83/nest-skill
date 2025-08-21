@@ -23,6 +23,8 @@ export enum Message {
 	YOU_NOT_UPDATE_ORDER = 'You are not authorized to update this order',
 	REVIEW_UPDATE_YOUT_OWN_REVIEW = 'You can only update your own review!',
 	DELETE_FAILED = 'You can only delete your own reviews!',
+	YOU_THIS_ORDER_NO_PAYMET = 'You this order no payment',
+	PAYMENT_NOT_FOUND = 'Payment not found!',
 }
 export enum Direction {
 	ASC = 1,

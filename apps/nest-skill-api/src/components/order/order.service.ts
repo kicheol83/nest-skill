@@ -10,14 +10,14 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { T } from '../../libs/types/common';
 import { UpdateOrderInput } from '../../libs/dto/order/order.update';
 import { OrderStatusAdmin, OrderStatusMyOrder, OrderStatusSort } from '../../libs/constants/constants';
-import { Member } from '../../libs/dto/member/member';
+import { ProviderPost } from '../../libs/dto/provider-post/provider-post';
 
 @Injectable()
 export class OrderService {
 	constructor(
 		@InjectModel('Order') private readonly orderModel: Model<Order>,
 		@InjectModel('OrderItems') private readonly orderItemModel: Model<OrderItem>,
-		@InjectModel('Provider') private readonly providerModel: Model<Member>,
+		@InjectModel('Provider') private readonly providerModel: Model<ProviderPost>,
 
 		private readonly memberService: MemberService,
 	) {}
@@ -203,11 +203,14 @@ export class OrderService {
 
 	/** ADMIN **/
 	public async getAllOrdersByAdmin(memberId: ObjectId, input: OrderInquiry): Promise<Orders> {
-		const match: T = {
-			orderStatus: {
-				$in: OrderStatusAdmin,
-			},
-		};
+		const match: T = {};
+
+		if (input?.search?.orderStatus) {
+			match.orderStatus = input.search.orderStatus;
+		} else {
+			match.orderStatus = { $in: OrderStatusAdmin };
+		}
+
 		const sort: T = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
 
 		console.log('match:', match);

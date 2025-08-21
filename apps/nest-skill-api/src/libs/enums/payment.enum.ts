@@ -1,9 +1,14 @@
+import { registerEnumType } from '@nestjs/graphql';
+
 export enum PaymentStatus {
 	PENDING = 'PENDING',
 	PAID = 'PAID',
 	FAILED = 'FAILED',
 	REFUNDED = 'REFUNDED',
 }
+registerEnumType(PaymentStatus, {
+	name: 'PaymentStatus',
+});
 
 export enum PaymentMethod {
 	CARD = 'CARD',
@@ -11,3 +16,6 @@ export enum PaymentMethod {
 	CASH = 'CASH',
 	VIRTUAL = 'VIRTUAL',
 }
+registerEnumType(PaymentMethod, {
+	name: 'PaymentMethod',
+});
