@@ -4,6 +4,24 @@ import { ObjectId } from 'mongoose';
 import { Member, TotalCounter } from '../member/member';
 
 @ObjectType()
+export class Address {
+	@Field(() => String)
+	fullName: string;
+
+	@Field(() => String)
+	phone: string;
+
+	@Field(() => String)
+	city: string;
+
+	@Field(() => String)
+	street: string;
+
+	@Field(() => String, { nullable: true })
+	zipcode?: string;
+}
+
+@ObjectType()
 export class Order {
 	@Field(() => String)
 	_id: ObjectId;
@@ -31,6 +49,9 @@ export class Order {
 
 	@Field(() => Member, { nullable: true })
 	memberData?: Member;
+
+	@Field(() => Address, { nullable: true })
+	address?: Address;
 }
 
 @ObjectType()

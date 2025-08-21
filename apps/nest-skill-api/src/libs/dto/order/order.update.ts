@@ -4,6 +4,24 @@ import { OrderStatus } from '../../enums/order.enum';
 import { ObjectId } from 'mongoose';
 
 @InputType()
+export class AddressUpdate {
+	@Field(() => String, { nullable: true })
+	fullName?: string;
+
+	@Field(() => String, { nullable: true })
+	phone?: string;
+
+	@Field(() => String, { nullable: true })
+	city?: string;
+
+	@Field(() => String, { nullable: true })
+	street?: string;
+
+	@Field(() => String, { nullable: true })
+	zipcode?: string;
+}
+
+@InputType()
 export class UpdateOrderInput {
 	@IsNotEmpty()
 	@Field(() => String)
@@ -31,4 +49,7 @@ export class UpdateOrderInput {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	providerId?: string;
+
+	@Field(() => AddressUpdate, { nullable: true })
+	address?: AddressUpdate;
 }

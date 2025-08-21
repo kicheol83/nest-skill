@@ -41,6 +41,7 @@ export class OrderService {
 				webTax: webTaxPrice,
 				totalPrice,
 				memberId,
+				address: input[0].address,
 			});
 
 			const orderId = newOrder._id;

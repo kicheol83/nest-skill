@@ -24,6 +24,14 @@ const OrderSchema = new Schema(
 			default: OrderStatus.PENDING,
 		},
 
+		address: {
+			fullName: { type: String, required: true },
+			phone: { type: String, required: true },
+			city: { type: String, required: true },
+			street: { type: String, required: true },
+			zipcode: { type: String },
+		},
+
 		memberId: {
 			type: Schema.Types.ObjectId,
 			required: true,

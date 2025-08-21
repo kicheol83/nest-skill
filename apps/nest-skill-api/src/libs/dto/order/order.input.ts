@@ -4,6 +4,25 @@ import { Direction } from '../../enums/common.enum';
 import { availableOrdersSorts } from '../../config';
 import { OrderStatus } from '../../enums/order.enum';
 import { ObjectId } from 'mongoose';
+
+@InputType()
+export class AddressInput {
+	@Field(() => String)
+	fullName: string;
+
+	@Field(() => String)
+	phone: string;
+
+	@Field(() => String)
+	city: string;
+
+	@Field(() => String)
+	street: string;
+
+	@Field(() => String, { nullable: true })
+	zipcode?: string;
+}
+
 @InputType()
 export class CreateOrderInput {
 	@IsInt()
@@ -14,6 +33,9 @@ export class CreateOrderInput {
 	@IsNotEmpty()
 	@Field(() => String)
 	providerId: string;
+
+	@Field(() => AddressInput)
+	address: AddressInput;
 
 	order?: ObjectId;
 
