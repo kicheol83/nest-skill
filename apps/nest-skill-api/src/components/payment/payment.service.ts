@@ -3,7 +3,7 @@ import { Payment, Payments } from '../../libs/dto/payment/payment';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
-import { CreatePaymentInput, PaymentInquiry } from '../../libs/dto/payment/payment.input';
+import { AllPaymentsInquiry, CreatePaymentInput, PaymentInquiry } from '../../libs/dto/payment/payment.input';
 import { PaymentStatus } from '../../libs/enums/payment.enum';
 import { UpdatePaymentInput } from '../../libs/dto/payment/payment.update';
 import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
@@ -79,6 +79,7 @@ export class PaymentService {
 			},
 		]);
 
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 		return result[0];
 	}
 
@@ -92,13 +93,19 @@ export class PaymentService {
 	}
 
 	/** ADMIN **/
-	async getPaymentsByAdmin(memberId: ObjectId, input: PaymentInquiry): Promise<Payments> {
+	public async getPaymentsByAdmin(memberId: ObjectId, input: AllPaymentsInquiry): Promise<Payments> {
+		const { text } = input.search;
 		const match: any = {};
 
+		if (text) match.paymentMethod = { $regex: new RegExp(text, 'i') };
 		if (input?.search?.paymentStatus) {
 			match.paymentStatus = input.search.paymentStatus;
 		} else {
 			match.paymentStatus = { $in: Object.values(PaymentStatus) };
+		}
+
+		if (input?.search?.paymentMethod) {
+			match.paymentMethod = input.search.paymentMethod;
 		}
 
 		const sort: any = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
@@ -129,7 +136,7 @@ export class PaymentService {
 		return result[0];
 	}
 
-	async getPaymentByAdmin(memberId: ObjectId, paymentId: ObjectId): Promise<Payment> {
+	public async getPaymentByAdmin(memberId: ObjectId, paymentId: ObjectId): Promise<Payment> {
 		const result = await this.paymentModel.findById(paymentId);
 		if (!result) throw new NotFoundException(Message.PAYMENT_NOT_FOUND);
 		return result;
@@ -140,12 +147,13 @@ export class PaymentService {
 		if (!payment) throw new NotFoundException(Message.PAYMENT_NOT_FOUND);
 
 		if (input.paymentMethod) payment.paymentMethod = input.paymentMethod;
+		if (input.paymentStatus) payment.paymentStatus = input.paymentStatus;
 
 		const result = await payment.save();
 		return result;
 	}
 
-	async deletePaymentByAdmin(memberId: ObjectId, paymentId: ObjectId): Promise<boolean> {
+	public async deletePaymentByAdmin(memberId: ObjectId, paymentId: ObjectId): Promise<boolean> {
 		const result = await this.paymentModel.findByIdAndDelete(paymentId);
 		return !!result;
 	}

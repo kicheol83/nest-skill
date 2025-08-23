@@ -97,5 +97,5 @@ export class AllPaymentsInquiry {
 
 	@IsOptional()
 	@Field(() => ORDAsearch, { nullable: true })
-	search?: ORDsearch;
+	search?: ORDAsearch;
 }

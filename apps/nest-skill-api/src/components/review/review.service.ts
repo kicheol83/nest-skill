@@ -22,11 +22,14 @@ export class ReviewService {
 	constructor(
 		@InjectModel('Review') private readonly reviewModel: Model<Review>,
 		@InjectModel('OrderItems') private readonly orderItemModel: Model<OrderItem>,
+		@InjectModel('Order') private readonly orderModel: Model<Order>,
 		private memberService: MemberService,
 	) {}
 
+	// review.service.ts
 	public async createReview(memberId: ObjectId, input: CreateReviewInput): Promise<Review> {
 		try {
+			console.log('input =>', input);
 			const orderItem = await this.orderItemModel
 				.findById(input.orderItemId)
 				.populate<{ orderId: Order }>('orderId')
@@ -37,21 +40,23 @@ export class ReviewService {
 			}
 
 			const order = orderItem.orderId;
-
 			if (order.orderStatus !== OrderStatus.COMPLETED) {
 				throw new ForbiddenException(Message.YOU_NOT_UPDATE_ORDER);
 			}
-
 			if (order.memberId.toString() !== memberId.toString()) {
 				throw new ForbiddenException(Message.REVIEW_UPDATE_YOUT_OWN_REVIEW);
 			}
-
-			const existingReview = await this.reviewModel.findOne({ orderItemId: input.orderItemId });
+			const existingReview = await this.reviewModel.findOne({
+				orderItemId: input.orderItemId,
+			});
 			if (existingReview) {
 				throw new BadRequestException(Message.BAD_REQUEST);
 			}
 
-			const newReview = await this.reviewModel.create(input);
+			const newReview = await this.reviewModel.create({
+				...input,
+				providerId: orderItem.providerId,
+			});
 
 			return newReview;
 		} catch (error) {

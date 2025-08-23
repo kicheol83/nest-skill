@@ -93,7 +93,6 @@ export class OrderService {
 		targetOrder.memberData = await this.memberService.getMember(null, targetOrder.memberId);
 		return targetOrder;
 	}
-
 	public async getMyOrders(memberId: ObjectId, input: OrderInquiry): Promise<Orders> {
 		const match: T = {
 			memberId: memberId,
@@ -114,6 +113,14 @@ export class OrderService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
+							{
+								$lookup: {
+									from: 'orderItems',
+									localField: '_id',
+									foreignField: 'orderId',
+									as: 'orderItems',
+								},
+							},
 							lookupMember,
 							{ $unwind: '$memberData' },
 						],
@@ -122,9 +129,23 @@ export class OrderService {
 				},
 			])
 			.exec();
+
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-		console.log('result =>', result[0]);
-		return result[0];
+
+		const ordersWithItems = await Promise.all(
+			result[0].list.map(async (order) => {
+				const orderItems = await this.orderItemModel.find({ orderId: order._id }).lean();
+				return {
+					...order,
+					orderItems,
+				};
+			}),
+		);
+
+		return {
+			list: ordersWithItems,
+			metaCounter: result[0].metaCounter,
+		};
 	}
 
 	public async updateMyOrder(memberId: ObjectId, input: UpdateOrderInput): Promise<Order> {

@@ -27,6 +27,7 @@ export class CreateReviewInput {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	orderItemId?: string;
+
 	memberId?: ObjectId;
 }
 
