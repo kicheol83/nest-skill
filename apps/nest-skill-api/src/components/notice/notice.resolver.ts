@@ -5,8 +5,8 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Notice, Notices } from '../../libs/dto/notice/notice';
-import { CreateNotice, NoticeInquiry } from '../../libs/dto/notice/notice-input';
-import { NoticeUpdate } from '../../libs/dto/notice/notice-update';
+import { CreateNotice, NoticeInquiry } from '../../libs/dto/notice/notice.input';
+import { NoticeUpdate } from '../../libs/dto/notice/notice.update';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { ObjectId } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -58,8 +58,9 @@ export class NoticeResolver {
 		@Args('input') input: NoticeUpdate, //
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Notice> {
-		input._id = shapeIntoMongoObjectId(input._id);
+		console.log('input =>', input);
 		console.log('Mutation: updateNotice');
+		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.noticeService.updateNotice(memberId, input);
 	}
 

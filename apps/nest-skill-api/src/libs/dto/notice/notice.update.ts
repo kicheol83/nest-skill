@@ -11,7 +11,7 @@ export class NoticeUpdate {
 
 	@IsOptional()
 	@Field(() => NoticeCategory, { nullable: true })
-	commentStatus?: NoticeCategory;
+	noticeCategory?: NoticeCategory;
 
 	@IsOptional()
 	@Field(() => NoticeStatus, { nullable: true })

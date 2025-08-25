@@ -3,9 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Notice, Notices } from '../../libs/dto/notice/notice';
 import { Model, ObjectId } from 'mongoose';
 import { MemberService } from '../member/member.service';
-import { CreateNotice, NoticeInquiry } from '../../libs/dto/notice/notice-input';
-import { NoticeUpdate } from '../../libs/dto/notice/notice-update';
-import { NoticeStatus } from '../../libs/enums/notice.enum';
+import { CreateNotice, NoticeInquiry } from '../../libs/dto/notice/notice.input';
+import { NoticeUpdate } from '../../libs/dto/notice/notice.update';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { T } from '../../libs/types/common';
 import { lookupMember } from '../../libs/config';
@@ -75,21 +74,14 @@ export class NoticeService {
 			throw new NotFoundException(Message.NOTICE_NOT_FOUN);
 		}
 
-		const result = await this.noticeModel.findOneAndUpdate(
-			{ _id: _id, memberId: memberId, noticeStatus: NoticeStatus.ACTIVE },
-			input,
-			{ new: true },
-		);
+		const result = await this.noticeModel.findOneAndUpdate({ _id: _id, memberId: memberId }, input, { new: true });
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		return result;
 	}
 
 	public async deleteNotice(memberId: ObjectId, _id: string): Promise<boolean> {
-		const notice = await this.noticeModel.findById(_id);
-		if (!notice) throw new NotFoundException(Message.NOTICE_NOT_FOUN);
-
-		notice.noticeStatus = NoticeStatus.DELETE;
-		await notice.save();
+		const result = await this.noticeModel.findByIdAndDelete(_id);
+		if (!result) throw new NotFoundException(Message.NOTICE_NOT_FOUN);
 		return true;
 	}
 

@@ -70,5 +70,5 @@ export class NoticeInquiry {
 
 	@IsNotEmpty()
 	@Field(() => NOTearch)
-	search: NOTearch;
+	search?: NOTearch;
 }
