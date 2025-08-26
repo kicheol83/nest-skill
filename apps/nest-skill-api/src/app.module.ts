@@ -8,6 +8,7 @@ import { AppResolver } from './app.resolver';
 import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
 import { T } from './libs/types/common';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
 	imports: [
@@ -29,6 +30,7 @@ import { T } from './libs/types/common';
 		}),
 		ComponentsModule,
 		DatabaseModule,
+		GatewayModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, AppResolver],
