@@ -22,6 +22,7 @@ export const availableCommentSorts = ['createdAt', 'updatedAt'];
 export const availableReviewSorts = ['createdAt', 'updatedAt'];
 export const availablePaymentSorts = ['createdAt', 'updatedAt'];
 export const availableNoticeSorts = ['createdAt', 'updatedAt', 'noticeStatus', 'noticeCategory'];
+export const availableNotificationSorts = ['createdAt', 'updatedAt', 'notificationType'];
 
 /** IMAGE CONFIGURATION **/
 import { v4 as uuidv4 } from 'uuid';

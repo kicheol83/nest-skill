@@ -1,23 +1,11 @@
 import { Schema } from 'mongoose';
-import { NotificationGroup, NotificationStatus, NotificationType } from '../libs/enums/notification.enum';
+import { NotificationType } from '../libs/enums/notification.enum';
 
 const NotificationSchema = new Schema(
 	{
 		notificationType: {
 			type: String,
 			enum: NotificationType,
-			required: true,
-		},
-
-		notificationStatus: {
-			type: String,
-			enum: NotificationStatus,
-			default: NotificationStatus.WAIT,
-		},
-
-		notificationGroup: {
-			type: String,
-			enum: NotificationGroup,
 			required: true,
 		},
 
@@ -30,7 +18,7 @@ const NotificationSchema = new Schema(
 			type: String,
 		},
 
-		authorId: {
+		senderId: {
 			type: Schema.Types.ObjectId,
 			required: true,
 			ref: 'Member',
@@ -40,16 +28,6 @@ const NotificationSchema = new Schema(
 			type: Schema.Types.ObjectId,
 			required: true,
 			ref: 'Member',
-		},
-
-		providerId: {
-			type: Schema.Types.ObjectId,
-			ref: 'Provider',
-		},
-
-		articleId: {
-			type: Schema.Types.ObjectId,
-			ref: 'BoardArticle',
 		},
 	},
 	{ timestamps: true, collection: 'notifications' },
