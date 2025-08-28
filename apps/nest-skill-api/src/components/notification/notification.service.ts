@@ -8,12 +8,14 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { NotificationUpdate } from '../../libs/dto/notification/notification.update';
 import { T } from '../../libs/types/common';
 import { lookupMember } from '../../libs/config';
+import { RedisService } from '../../redis/redis.service';
 
 @Injectable()
 export class NotificationService {
 	constructor(
 		@InjectModel('Notifications') private readonly notificationModel: Model<Notification>,
 		private memberService: MemberService,
+		private redisService: RedisService,
 	) {}
 
 	public async createNotification(memberId: ObjectId, input: NotificationInput): Promise<Notification> {
@@ -22,9 +24,17 @@ export class NotificationService {
 				...input,
 				receiverId: memberId,
 				senderId: input.senderId ? input.senderId : null,
+				isRead: false,
 			});
 
 			const result = await notification.save();
+			await this.redisService.publish('notification', {
+				receiverId: input.receiverId,
+				...result.toObject(),
+			});
+
+			console.log('Notification saved:', result);
+
 			return result;
 		} catch (err) {
 			console.log('ERROR: notificationModel', err);

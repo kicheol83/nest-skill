@@ -18,6 +18,11 @@ const NotificationSchema = new Schema(
 			type: String,
 		},
 
+		isRead: {
+			type: Boolean,
+			default: false,
+		},
+
 		senderId: {
 			type: Schema.Types.ObjectId,
 			required: true,

@@ -20,6 +20,9 @@ export class NotificationInput {
 	@Field(() => String)
 	notificationDesc: string;
 
+	@Field(() => Boolean)
+	isRead: false;
+
 	senderId: string;
 
 	receiverId: string;

@@ -30,7 +30,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		});
 
 		this.redisService.subscribe('notification', (msg) => {
-			this.server.emit('notification', JSON.parse(msg));
+			const notification = JSON.parse(msg);
+			console.log('Redis message received:', notification);
+
+			const sockets = Array.from(this.server.sockets.sockets.values());
+			sockets.forEach((s) => {
+				if (s.data?.userId === notification.receiverId) {
+					console.log('Emitting notification to socket:', s.id);
+					s.emit('notification', notification);
+				}
+			});
 		});
 	}
 
@@ -40,7 +49,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: Socket) {
-		console.log(`Client connected: ${client.id}`);
+		const userId = client.handshake.query.userId as string;
+		client.data.userId = userId;
+
+		console.log(`Client connected: ${client.id} (userId: ${userId})`);
 		this.chatService.addOnlineUser(client.id);
 		this.server.emit('onlineUsers', this.chatService.getOnlineCount());
 

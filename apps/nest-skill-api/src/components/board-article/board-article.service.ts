@@ -18,6 +18,8 @@ import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
+import { NotificationType } from '../../libs/enums/notification.enum';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class BoardArticleService {
@@ -26,6 +28,7 @@ export class BoardArticleService {
 		private readonly memberService: MemberService,
 		private readonly viewService: ViewService,
 		private readonly likeService: LikeService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createBoardArticle(memberId: ObjectId, input: BoardArticleInput): Promise<BoardArticle> {
@@ -36,6 +39,14 @@ export class BoardArticleService {
 				_id: memberId,
 				targetKey: 'memberArticles',
 				modifier: 1,
+			});
+
+			await this.notificationService.createNotification(memberId, {
+				notificationType: NotificationType.ARTICLE,
+				notificationTitle: 'Article created',
+				notificationDesc: `Siz yangi article yaratdingiz: ${input.articleTitle}`,
+				senderId: memberId.toString(),
+				receiverId: memberId.toString(),
 			});
 
 			return result;
