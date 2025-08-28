@@ -8,34 +8,29 @@ import {
 	ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import Redis from 'ioredis';
 import { GatewayService } from './gateway.service';
+import { RedisService } from '../redis/redis.service';
 
 @WebSocketGateway({
 	cors: { origin: 'http://localhost:3000', methods: ['GET', 'POST'], credentials: true },
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	private server: Server;
-	private redisPub: Redis;
-	private redisSub: Redis;
 
-	constructor(private readonly chatService: GatewayService) {
-		this.redisPub = new Redis();
-		this.redisSub = new Redis();
-
-		this.redisSub.subscribe('chat', (err, count) => {
-			if (err) console.error('Redis subscribe error:', err);
-			else console.log(`Subscribed to ${count} channel(s)`);
+	constructor(
+		private readonly chatService: GatewayService,
+		private readonly redisService: RedisService,
+	) {
+		this.redisService.subscribe('chat', (message) => {
+			try {
+				this.server.emit('chatMessage', JSON.parse(message));
+			} catch (err) {
+				console.debug('Invalid message from Redis:', err.message);
+			}
 		});
 
-		this.redisSub.on('message', (channel, message) => {
-			if (channel === 'chat') {
-				try {
-					this.server.emit('chatMessage', JSON.parse(message));
-				} catch (err) {
-					console.debug('Invalid message from Redis:', err.message);
-				}
-			}
+		this.redisService.subscribe('notification', (msg) => {
+			this.server.emit('notification', JSON.parse(msg));
 		});
 	}
 
@@ -61,11 +56,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('sendMessage')
 	async handleMessage(@MessageBody() data: { sender: string; message: string }, @ConnectedSocket() client: Socket) {
-		const savedMessage = await this.chatService.saveMessage({
-			sender: data.sender,
-			message: data.message,
-		});
-
-		await this.redisPub.publish('chat', JSON.stringify(savedMessage));
+		const savedMessage = await this.chatService.saveMessage(data);
+		await this.redisService.publish('chat', savedMessage);
 	}
 }
