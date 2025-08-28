@@ -10,6 +10,8 @@ import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { Order } from '../../libs/dto/order/order';
+import { NotificationType } from '../../libs/enums/notification.enum';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class PaymentService {
@@ -18,6 +20,7 @@ export class PaymentService {
 		@InjectModel('Order') private readonly orderModel: Model<Order>,
 
 		private readonly memberService: MemberService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createPayment(input: CreatePaymentInput, memberId: ObjectId): Promise<Payment> {
@@ -33,7 +36,16 @@ export class PaymentService {
 				...input,
 				memberId,
 				transactionId: `TX${Math.floor(Math.random() * 1000000000)}`,
-				paymentStatus: PaymentStatus.PAID, // Fake success
+				paymentStatus: PaymentStatus.PAID,
+			});
+
+			await this.notificationService.createNotification(memberId, {
+				notificationType: NotificationType.PAYMENT,
+				notificationTitle: 'Succesfully Payment created',
+				notificationDesc: `Amount:${input.paymentAmount}$`,
+				senderId: memberId.toString(),
+				receiverId: memberId.toString(),
+				isRead: false,
 			});
 
 			return result;

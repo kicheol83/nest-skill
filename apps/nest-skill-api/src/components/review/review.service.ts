@@ -16,6 +16,8 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { UpdateReviewInput } from '../../libs/dto/review-post/review.update';
 import { T } from '../../libs/types/common';
 import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class ReviewService {
@@ -24,6 +26,7 @@ export class ReviewService {
 		@InjectModel('OrderItems') private readonly orderItemModel: Model<OrderItem>,
 		@InjectModel('Order') private readonly orderModel: Model<Order>,
 		private memberService: MemberService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	// review.service.ts
@@ -56,6 +59,15 @@ export class ReviewService {
 			const newReview = await this.reviewModel.create({
 				...input,
 				providerId: orderItem.providerId,
+			});
+
+			await this.notificationService.createNotification(memberId, {
+				notificationType: NotificationType.REVIEW,
+				notificationTitle: 'Succesfully Review created',
+				notificationDesc: `Price: ${input.reviewComments}$`,
+				senderId: memberId.toString(),
+				receiverId: memberId.toString(),
+				isRead: false,
 			});
 
 			return newReview;

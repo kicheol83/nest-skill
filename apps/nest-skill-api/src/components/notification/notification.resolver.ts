@@ -29,9 +29,11 @@ export class NotificationResolver {
 
 	@UseGuards(AuthGuard)
 	@Query(() => Notifications)
-	public async getNotifications(@Args('inquiry') inquiry: NotificationInquiry, @AuthMember('_id') memberId: ObjectId) {
+	public async getNotifications(@Args('input') input: NotificationInquiry, @AuthMember('_id') memberId: ObjectId) {
 		console.log('Query: getNotifications');
-		return this.notificationService.getNotifications(memberId, inquiry);
+		const result = await this.notificationService.getNotifications(memberId, input);
+		console.log('notification data =>', result);
+		return result;
 	}
 
 	@UseGuards(AuthGuard)
@@ -49,5 +51,21 @@ export class NotificationResolver {
 		id = shapeIntoMongoObjectId(id);
 		const result = await this.notificationService.deleteNotification(memberId, id);
 		return result;
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Boolean)
+	public async markAllAsRead(@Args('id') id: string, @AuthMember('_id') memberId: ObjectId): Promise<boolean> {
+		console.log('Mutation: markAllAsRead');
+		return await this.notificationService.markAllAsRead(memberId);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => Notification)
+	public async markNotificationRead(
+		@Args('notificationId') notificationId: string,
+		@AuthMember('_id') memberId: ObjectId,
+	) {
+		return this.notificationService.markNotificationRead(memberId, notificationId);
 	}
 }

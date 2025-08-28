@@ -6,6 +6,7 @@ import PaymentSchema from '../../schemas/Payment.model';
 import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
 import OrderSchema from '../../schemas/Order.model ';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
 	imports: [
@@ -23,6 +24,7 @@ import OrderSchema from '../../schemas/Order.model ';
 		]),
 		AuthModule,
 		MemberModule,
+		NotificationModule,
 	],
 	providers: [PaymentResolver, PaymentService],
 })

@@ -7,6 +7,7 @@ import { MemberModule } from '../member/member.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import OrderItemSchema from '../../schemas/OrderItem.model';
 import OrderSchema from '../../schemas/Order.model ';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
 	imports: [
@@ -30,6 +31,7 @@ import OrderSchema from '../../schemas/Order.model ';
 		]),
 		AuthModule,
 		MemberModule,
+		NotificationModule,
 	],
 	providers: [ReviewResolver, ReviewService],
 	exports: [ReviewService],

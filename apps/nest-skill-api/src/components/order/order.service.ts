@@ -11,6 +11,8 @@ import { T } from '../../libs/types/common';
 import { UpdateOrderInput } from '../../libs/dto/order/order.update';
 import { OrderStatusAdmin, OrderStatusMyOrder, OrderStatusSort } from '../../libs/constants/constants';
 import { ProviderPost } from '../../libs/dto/provider-post/provider-post';
+import { NotificationType } from '../../libs/enums/notification.enum';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class OrderService {
@@ -20,6 +22,7 @@ export class OrderService {
 		@InjectModel('Provider') private readonly providerModel: Model<ProviderPost>,
 
 		private readonly memberService: MemberService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createOrder(memberId: ObjectId, input: CreateOrderInput[]): Promise<Order> {
@@ -46,6 +49,15 @@ export class OrderService {
 
 			const orderId = newOrder._id;
 			await this.recordOrderItem(orderId, input);
+
+			await this.notificationService.createNotification(memberId, {
+				notificationType: NotificationType.ORDER,
+				notificationTitle: 'Succesfully Order created',
+				notificationDesc: `Price: ${totalPrice}$`,
+				senderId: memberId.toString(),
+				receiverId: memberId.toString(),
+				isRead: false,
+			});
 
 			return newOrder;
 		} catch (err) {

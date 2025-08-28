@@ -7,7 +7,7 @@ import { NotificationInput, NotificationInquiry } from '../../libs/dto/notificat
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { NotificationUpdate } from '../../libs/dto/notification/notification.update';
 import { T } from '../../libs/types/common';
-import { lookupMember } from '../../libs/config';
+import { lookupReceiver } from '../../libs/config';
 import { RedisService } from '../../redis/redis.service';
 
 @Injectable()
@@ -72,7 +72,8 @@ export class NotificationService {
 	public async getNotifications(memberId: ObjectId, input: NotificationInquiry) {
 		const { search } = input;
 		const sort: T = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
-		const match: T = { receiverId: memberId };
+		const match: T = { receiverId: memberId, isRead: false };
+		console.log('memberId type =>', typeof memberId, memberId);
 
 		if (search) {
 			if (search.notificationType) match.notificationType = search.notificationType;
@@ -89,8 +90,8 @@ export class NotificationService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							lookupMember,
-							{ $unwind: '$memberData' },
+							lookupReceiver,
+							{ $unwind: '$receiverData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -99,6 +100,38 @@ export class NotificationService {
 			.exec();
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
+		console.log('result =>', result[0]);
+
 		return result[0];
+	}
+
+	public async markAllAsRead(memberId: ObjectId): Promise<boolean> {
+		try {
+			await this.notificationModel.updateMany({ receiverId: memberId, isRead: false }, { $set: { isRead: true } });
+			return true;
+		} catch (err) {
+			console.log('ERROR: markAllAsRead', err);
+			throw new BadRequestException('Failed to mark all notifications as read');
+		}
+	}
+
+	// NotificationService.ts
+	public async markNotificationRead(memberId: ObjectId, notificationId: string): Promise<Notification> {
+		try {
+			const notification = await this.notificationModel.findOneAndUpdate(
+				{ _id: notificationId, receiverId: memberId },
+				{ $set: { isRead: true } },
+				{ new: true },
+			);
+
+			if (!notification) {
+				throw new NotFoundException('Notification not found or you do not have permission');
+			}
+
+			return notification;
+		} catch (err) {
+			console.log('ERROR: markNotificationRead', err);
+			throw new BadRequestException('Failed to mark notification as read');
+		}
 	}
 }

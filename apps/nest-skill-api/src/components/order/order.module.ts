@@ -7,6 +7,7 @@ import { MemberModule } from '../member/member.module';
 import OrderSchema from '../../schemas/Order.model ';
 import OrderItemSchema from '../../schemas/OrderItem.model';
 import ProviderSchema from '../../schemas/Provider.model';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import ProviderSchema from '../../schemas/Provider.model';
 		]),
 		AuthModule,
 		MemberModule,
+		NotificationModule,
 		MongooseModule.forFeature([{ name: 'Provider', schema: ProviderSchema }]),
 	],
 	providers: [OrderService, OrderResolver],

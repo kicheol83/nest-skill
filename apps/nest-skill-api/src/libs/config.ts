@@ -48,6 +48,15 @@ export const lookupMember = {
 	},
 };
 
+export const lookupReceiver = {
+	$lookup: {
+		from: 'members',
+		localField: 'receiverId',
+		foreignField: '_id',
+		as: 'receiverData',
+	},
+};
+
 export const lookupProvider = {
 	$lookup: {
 		from: 'provider',

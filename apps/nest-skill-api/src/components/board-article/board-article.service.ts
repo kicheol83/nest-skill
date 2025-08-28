@@ -43,10 +43,11 @@ export class BoardArticleService {
 
 			await this.notificationService.createNotification(memberId, {
 				notificationType: NotificationType.ARTICLE,
-				notificationTitle: 'Article created',
-				notificationDesc: `Siz yangi article yaratdingiz: ${input.articleTitle}`,
+				notificationTitle: 'Succesfully Article created',
+				notificationDesc: `${input.articleTitle}`,
 				senderId: memberId.toString(),
 				receiverId: memberId.toString(),
+				isRead: false,
 			});
 
 			return result;
