@@ -72,6 +72,15 @@ export class OrderResolver {
 		return await this.orderService.updateMyOrderProvider(memberId, input);
 	}
 
+	@Roles(MemberType.PROVIDER)
+	@UseGuards(RolesGuard)
+	@Query(() => Orders)
+	public async getOrdersByProvider(@Args('input') input: OrderInquiry, @AuthMember('_id') memberId: ObjectId) {
+		console.log('Query, getOrdersByProvider');
+		const providerOwnerId = shapeIntoMongoObjectId(memberId);
+		return await this.orderService.getOrdersByProvider(providerOwnerId, input);
+	}
+
 	/** ADMIN **/
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)

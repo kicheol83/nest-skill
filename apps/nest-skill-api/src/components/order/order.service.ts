@@ -34,11 +34,13 @@ export class OrderService {
 		if (existingOrder) {
 			throw new Error(Message.BAD_REQUEST);
 		}
+
 		try {
 			const orderPrice = input.reduce((acc, item) => acc + item.itemPrice, 0);
 			const webTaxPrice = orderPrice + 150 ? 10 : 0;
 			const totalPrice = orderPrice + webTaxPrice;
 
+			// 1. order yaratish
 			const newOrder = await this.orderModel.create({
 				orderPrice,
 				webTax: webTaxPrice,
@@ -48,7 +50,8 @@ export class OrderService {
 			});
 
 			const orderId = newOrder._id;
-			await this.recordOrderItem(orderId, input);
+
+			const orderItems = await this.recordOrderItem(orderId, input);
 
 			await this.notificationService.createNotification(memberId, {
 				notificationType: NotificationType.ORDER,
@@ -59,25 +62,41 @@ export class OrderService {
 				isRead: false,
 			});
 
+			for (const item of orderItems) {
+				const providerPost = await this.providerModel.findById(item.providerId);
+				if (!providerPost) continue;
+
+				const providerOwnerId = providerPost.memberId;
+
+				await this.notificationService.createNotification(providerOwnerId, {
+					notificationType: NotificationType.ORDER,
+					notificationTitle: 'New Order Received',
+					notificationDesc: `A new order has been placed on your service post. Price: $${item.itemPrice}`,
+					senderId: memberId.toString(),
+					receiverId: providerOwnerId.toString(),
+					isRead: false,
+				});
+			}
+
 			return newOrder;
 		} catch (err) {
 			console.log('Error, orderModel:', err.message);
 		}
 	}
 
-	private async recordOrderItem(orderId: ObjectId, input: CreateOrderInput[]): Promise<void> {
+	private async recordOrderItem(orderId: ObjectId, input: CreateOrderInput[]): Promise<OrderItem[]> {
 		const promisedList = input.map(async (item: CreateOrderInput) => {
-			await this.orderItemModel.create({
+			const createdItem = await this.orderItemModel.create({
 				...item,
 				orderId: shapeIntoMongoObjectId(orderId),
 				providerId: shapeIntoMongoObjectId(item.providerId),
 				itemPrice: item.itemPrice,
 			});
-			return 'INSERTED';
+			return createdItem;
 		});
 
-		const orderItemState = await Promise.all(promisedList);
-		console.log('orderItemState', orderItemState);
+		const orderItems = await Promise.all(promisedList);
+		return orderItems;
 	}
 
 	public async getMyOrder(memberId: ObjectId, orderId: ObjectId): Promise<Order> {
@@ -105,6 +124,7 @@ export class OrderService {
 		targetOrder.memberData = await this.memberService.getMember(null, targetOrder.memberId);
 		return targetOrder;
 	}
+
 	public async getMyOrders(memberId: ObjectId, input: OrderInquiry): Promise<Orders> {
 		const match: T = {
 			memberId: memberId,
@@ -158,6 +178,57 @@ export class OrderService {
 			list: ordersWithItems,
 			metaCounter: result[0].metaCounter,
 		};
+	}
+
+	public async getOrdersByProvider(providerOwnerId: ObjectId, input: OrderInquiry): Promise<Orders> {
+		const providerPosts = await this.providerModel.find({ memberId: providerOwnerId }).select('_id');
+
+		const providerPostIds = providerPosts.map((p) => p._id);
+
+		const sort: any = { [input.sort ?? 'createdAt']: input?.directions ?? Direction.DESC };
+
+		const result = await this.orderModel
+			.aggregate([
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							{
+								$lookup: {
+									from: 'orderItems',
+									localField: '_id',
+									foreignField: 'orderId',
+									as: 'orderItems',
+								},
+							},
+							lookupMember,
+							{ $unwind: '$memberData' },
+							{
+								$lookup: {
+									from: 'provider',
+									localField: 'orderItems.providerId',
+									foreignField: '_id',
+									as: 'providerData',
+								},
+							},
+
+							{
+								$match: {
+									'orderItems.providerId': { $in: providerPostIds },
+								},
+							},
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
 	}
 
 	public async updateMyOrder(memberId: ObjectId, input: UpdateOrderInput): Promise<Order> {
