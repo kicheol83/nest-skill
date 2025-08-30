@@ -11,6 +11,8 @@ import { CommentUpdate } from '../../libs/dto/comment/comment.update';
 import { T } from '../../libs/types/common';
 import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { lookupMember } from '../../libs/config';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class CommentService {
@@ -20,6 +22,7 @@ export class CommentService {
 		private memberService: MemberService,
 		private providerPostService: ProviderPostService,
 		private boardArticleService: BoardArticleService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createComment(memberId: ObjectId, input: CommentInput): Promise<Comment> {
@@ -56,6 +59,15 @@ export class CommentService {
 				});
 				break;
 		}
+
+		await this.notificationService.createNotification(memberId, {
+			notificationType: NotificationType.COMMENT,
+			notificationTitle: 'New comment received',
+			notificationDesc: `Title: ${input.commentContent}`,
+			senderId: memberId.toString(),
+			receiverId: input.commentRefId.toString(),
+			isRead: false,
+		});
 		if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);
 		return result;
 	}

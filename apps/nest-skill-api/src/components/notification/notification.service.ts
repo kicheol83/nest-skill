@@ -19,10 +19,11 @@ export class NotificationService {
 	) {}
 
 	public async createNotification(memberId: ObjectId, input: NotificationInput): Promise<Notification> {
+		console.log('input =>', input);
 		try {
 			const notification = new this.notificationModel({
 				...input,
-				receiverId: memberId,
+				receiverId: input.receiverId,
 				senderId: input.senderId ? input.senderId : null,
 				isRead: false,
 			});

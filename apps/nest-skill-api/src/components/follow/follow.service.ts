@@ -12,12 +12,15 @@ import {
 	lookupFollowingData,
 } from '../../libs/config';
 import { T } from '../../libs/types/common';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from '../../libs/enums/notification.enum';
 
 @Injectable()
 export class FollowService {
 	constructor(
 		@InjectModel('Follow') private readonly followModel: Model<Follower | Following>,
 		private readonly memberService: MemberService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async subscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
@@ -28,10 +31,22 @@ export class FollowService {
 		const targetMember = await this.memberService.getMember(null, followingId);
 		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
+		const targetFollower = await this.memberService.getMember(null, followerId);
+		if (!targetFollower) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
 		const result = await this.registerSubscription(followerId, followingId);
 
 		await this.memberService.memberStatisEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: 1 });
 		await this.memberService.memberStatisEditor({ _id: followingId, targetKey: 'memberFollowers', modifier: 1 });
+
+		await this.notificationService.createNotification(followerId, {
+			notificationType: NotificationType.FOLLOW,
+			notificationTitle: 'New Follow received',
+			notificationDesc: `${targetFollower.memberNick} following you`,
+			senderId: followerId.toString(),
+			receiverId: followingId.toString(),
+			isRead: false,
+		});
 
 		return result;
 	}
@@ -52,6 +67,9 @@ export class FollowService {
 		const targetMember = await this.memberService.getMember(null, followingId);
 		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
+		const targetFollower = await this.memberService.getMember(null, followerId);
+		if (!targetFollower) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
 		const result = await this.followModel.findOneAndDelete({
 			followingId: followingId,
 			followerId: followerId,
@@ -60,6 +78,15 @@ export class FollowService {
 
 		await this.memberService.memberStatisEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: -1 });
 		await this.memberService.memberStatisEditor({ _id: followingId, targetKey: 'memberFollowers', modifier: -1 });
+
+		await this.notificationService.createNotification(followerId, {
+			notificationType: NotificationType.UN_FOLLOW,
+			notificationTitle: 'New Un Follow received',
+			notificationDesc: `${targetFollower.memberNick} stopped following you`,
+			senderId: followerId.toString(),
+			receiverId: followingId.toString(),
+			isRead: false,
+		});
 
 		return result;
 	}

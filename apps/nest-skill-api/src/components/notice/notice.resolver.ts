@@ -78,7 +78,7 @@ export class NoticeResolver {
 	}
 
 	// ================== GET ALL ==================
-	@Roles(MemberType.ADMIN)
+	@UseGuards(WithoutGuard)
 	@UseGuards(RolesGuard)
 	@Query(() => Notices)
 	public async getNoticesForAdmin(

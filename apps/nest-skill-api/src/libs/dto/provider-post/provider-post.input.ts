@@ -193,6 +193,10 @@ class APISearch {
 	@IsOptional()
 	@Field(() => ProviderStatus, { nullable: true })
 	providerStatus?: ProviderStatus;
+
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	memberId?: string;
 }
 
 @InputType()
