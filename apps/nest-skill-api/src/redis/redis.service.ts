@@ -7,8 +7,11 @@ export class RedisService implements OnModuleDestroy {
 	public sub: Redis;
 
 	constructor() {
-		this.pub = new Redis();
-		this.sub = new Redis();
+		const host = process.env.REDIS_HOST || '127.0.0.1';
+		const port = Number(process.env.REDIS_PORT) || 6379;
+
+		this.pub = new Redis({ host, port });
+		this.sub = new Redis({ host, port });
 	}
 
 	subscribe(channel: string, callback: (message: string) => void) {
