@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  redis:
+    container_name: redis
+    image: redis:7
+    ports:
+      - '6379:6379'
+    networks:
+      - monorepo_network
+
   nest-skill-api:
     container_name: nest-skill-api
     restart: always
@@ -10,11 +18,13 @@ services:
     volumes:
       - ./:/usr/src/nest-skill
     working_dir: /usr/src/nest-skill
-
     networks:
       - monorepo_network
-
-    # FOR PRODUCTION
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
     command: bash -c "npm install && npm run build && npm run start:prod"
 
   nest-batch:
@@ -26,16 +36,15 @@ services:
     volumes:
       - ./:/usr/src/nest-skill
     working_dir: /usr/src/nest-skill
-
     networks:
       - monorepo_network
-
-    # FOR PRODUCTION
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
     command: bash -c "npm install && npm run build && npm run start:prod:batch"
 
 networks:
   monorepo_network:
     driver: bridge
-
-  # FOR DEVELOPMENT
-  # command: bash -c "npm install && npm run start:dev"
