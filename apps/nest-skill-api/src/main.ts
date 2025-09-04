@@ -12,6 +12,12 @@ async function bootstrap() {
 	app.useGlobalInterceptors(new LoggingInterceptor());
 	app.enableCors({ origin: true, credentials: true });
 
+	app.use((req, res, next) => {
+		res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+		res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+		next();
+	});
+
 	app.use(graphqlUploadExpress({ maxFileSize: 15000000, maxFile: 10 }));
 	app.use('/uploads', express.static('./uploads'));
 

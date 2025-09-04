@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { GatewayService } from './gateway.service';
 import { RedisService } from '../redis/redis.service';
+import { ObjectId } from 'mongoose';
 
 @WebSocketGateway({
 	cors: { origin: 'http://localhost:4000', methods: ['GET', 'POST'], credentials: true },
@@ -67,7 +68,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('sendMessage')
-	async handleMessage(@MessageBody() data: { sender: string; message: string }, @ConnectedSocket() client: Socket) {
+	async handleMessage(
+		@MessageBody() data: { sender: string; message: string; memberId: ObjectId },
+		@ConnectedSocket() client: Socket,
+	) {
 		const savedMessage = await this.chatService.saveMessage(data);
 		await this.redisService.publish('chat', savedMessage);
 	}
