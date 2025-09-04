@@ -13,7 +13,7 @@ import { RedisService } from '../redis/redis.service';
 import { ObjectId } from 'mongoose';
 
 @WebSocketGateway({
-	cors: { origin: 'http://localhost:4000', methods: ['GET', 'POST'], credentials: true },
+	cors: { origin: 'http://72.60.107.80:4000', methods: ['GET', 'POST'], credentials: true },
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	private server: Server;
