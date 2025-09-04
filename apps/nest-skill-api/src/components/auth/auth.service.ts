@@ -48,7 +48,7 @@ export class AuthService {
 		return member;
 	}
 
-	async googleLogin(authCode: string): Promise<{ accessToken: string }> {
+	public async googleLogin(authCode: string): Promise<{ accessToken: string }> {
 		const params = new URLSearchParams();
 		params.append('code', authCode);
 		params.append('client_id', process.env.GOOGLE_CLIENT_ID!);
@@ -68,7 +68,6 @@ export class AuthService {
 		const { id_token } = tokenResponse.data;
 		if (!id_token) throw new UnauthorizedException('No id_token from Google');
 
-		// 2) id_token verify
 		const ticket = await this.googleClient.verifyIdToken({
 			idToken: id_token,
 			audience: process.env.GOOGLE_CLIENT_ID,
@@ -88,7 +87,7 @@ export class AuthService {
 				memberImage: picture,
 				memberAuthType: MemberAuthType.GOOGLE,
 				memberPassword: crypto.randomBytes(16).toString('hex'),
-				memberPhone: phone, // placeholder
+				memberPhone: phone,
 			});
 		}
 

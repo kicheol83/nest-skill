@@ -43,7 +43,8 @@ export class MemberResolver {
 	}
 
 	@Mutation(() => AuthPayload)
-	async googleLogin(@Args('input') input: GoogleLoginInput): Promise<AuthPayload> {
+	public async googleLogin(@Args('input') input: GoogleLoginInput): Promise<AuthPayload> {
+		console.log('Mutation: googleLogin');
 		return await this.authService.googleLogin(input.code);
 	}
 

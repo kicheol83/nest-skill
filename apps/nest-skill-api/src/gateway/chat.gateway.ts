@@ -12,7 +12,7 @@ import { GatewayService } from './gateway.service';
 import { RedisService } from '../redis/redis.service';
 
 @WebSocketGateway({
-	cors: { origin: 'http://nest-skill-frontend:3010', methods: ['GET', 'POST'], credentials: true },
+	cors: { origin: 'http://localhost:4000', methods: ['GET', 'POST'], credentials: true },
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	private server: Server;
