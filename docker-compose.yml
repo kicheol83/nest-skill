@@ -1,6 +1,7 @@
 services:
   redis:
     container_name: redis
+    restart: always
     image: redis:7
     ports:
       - '6379:6379'
