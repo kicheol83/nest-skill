@@ -10,7 +10,7 @@ async function bootstrap() {
 	app.useGlobalPipes(new ValidationPipe());
 
 	app.useGlobalInterceptors(new LoggingInterceptor());
-	app.enableCors({ origin: true, credentials: true });
+	app.enableCors({ origin: 'http://nest-skill.uz', credentials: true });
 
 	app.use((req, res, next) => {
 		res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
